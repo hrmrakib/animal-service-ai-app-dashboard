@@ -1,65 +1,128 @@
-import Image from "next/image";
+import { DashboardLayout } from "@/components/layout/DashboardLayout";
+import { StatCard } from "@/components/ui/StatCard";
+import { AreaChartPlaceholder } from "@/components/ui/AreaChartPlaceholder";
+import { DonutChartPlaceholder } from "@/components/ui/DonutChartPlaceholder";
+import { Table } from "@/components/ui/Table";
+import { Badge } from "@/components/ui/Badge";
+import { 
+  Banknote, 
+  Users, 
+  Gavel, 
+  ClipboardList, 
+  Clock,
+  Eye,
+  Ban
+} from "lucide-react";
+
+const recentUsers = [
+  { id: 1, name: "Olivia Rhye", username: "#12345", email: "Olivia123@gmail.com", phone: "0175589484", role: "Job Seeker", date: "19 March, 2026", status: "Active" as const },
+  { id: 2, name: "Olivia Rhye", username: "#12345", email: "Olivia123@gmail.com", phone: "0175589484", role: "Job Seeker", date: "19 March, 2026", status: "Suspended" as const },
+  { id: 3, name: "Olivia Rhye", username: "#12345", email: "Olivia123@gmail.com", phone: "0175589484", role: "Job Seeker", date: "19 March, 2026", status: "Active" as const },
+  { id: 4, name: "Olivia Rhye", username: "#12345", email: "Olivia123@gmail.com", phone: "0175589484", role: "Job Seeker", date: "19 March, 2026", status: "Active" as const },
+  { id: 5, name: "Olivia Rhye", username: "#12345", email: "Olivia123@gmail.com", phone: "0175589484", role: "Job Seeker", date: "19 March, 2026", status: "Active" as const },
+];
 
 export default function Home() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <DashboardLayout 
+      title="Overview" 
+      subtitle="Real-time monetization and user acquisition insights"
+    >
+      <div className="flex flex-col gap-6">
+        
+        {/* Stat Cards Grid */}
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
+          <StatCard 
+            title="Total Revenue" 
+            value="SAR 725" 
+            icon={<Banknote className="h-6 w-6 text-brand" />} 
+          />
+          <StatCard 
+            title="Total Users" 
+            value="5180" 
+            icon={<Users className="h-6 w-6 text-blue-500" />} 
+            iconBgColor="bg-blue-50"
+          />
+          <StatCard 
+            title="Total Auctions" 
+            value="50" 
+            icon={<Gavel className="h-6 w-6 text-green-500" />} 
+            iconBgColor="bg-green-50"
+          />
+          <StatCard 
+            title="Active Order" 
+            value="525" 
+            icon={<ClipboardList className="h-6 w-6 text-blue-500" />} 
+            iconBgColor="bg-blue-50"
+          />
+          <StatCard 
+            title="Pending Order" 
+            value="75" 
+            icon={<Clock className="h-6 w-6 text-red-500" />} 
+            iconBgColor="bg-red-50"
+          />
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+
+        {/* Charts Row */}
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+          <div className="lg:col-span-2 min-h-[400px]">
+            <AreaChartPlaceholder />
+          </div>
+          <div className="min-h-[400px]">
+            <DonutChartPlaceholder />
+          </div>
         </div>
-      </main>
-    </div>
+
+        {/* Table Section */}
+        <div className="flex flex-col gap-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-semibold text-gray-900">Recent Users</h2>
+          </div>
+          <Table
+            data={recentUsers}
+            keyExtractor={(row) => row.id}
+            columns={[
+              {
+                header: "Users",
+                accessor: (row) => (
+                  <div className="flex items-center gap-3">
+                    <input type="checkbox" className="rounded border-gray-300 text-brand focus:ring-brand" />
+                    <div className="h-8 w-8 rounded-full bg-pink-200 overflow-hidden shrink-0 flex items-center justify-center text-pink-700 font-bold text-xs">
+                      OR
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="font-medium text-gray-900">{row.name}</span>
+                      <span className="text-xs text-gray-500">{row.username}</span>
+                    </div>
+                  </div>
+                )
+              },
+              { header: "Gmail", accessor: "email", className: "text-gray-500" },
+              { header: "Phone", accessor: "phone", className: "text-gray-500" },
+              { header: "Role", accessor: "role", className: "text-gray-500" },
+              { header: "Joining Date", accessor: "date", className: "text-gray-500" },
+              {
+                header: "Status",
+                accessor: (row) => <Badge status={row.status} />
+              },
+              {
+                header: "Action",
+                accessor: () => (
+                  <div className="flex items-center gap-3">
+                    <button className="text-gray-400 hover:text-gray-600">
+                      <Eye className="h-4 w-4" />
+                    </button>
+                    <button className="text-gray-400 hover:text-red-600">
+                      <Ban className="h-4 w-4" />
+                    </button>
+                  </div>
+                )
+              }
+            ]}
+          />
+        </div>
+
+      </div>
+    </DashboardLayout>
   );
 }

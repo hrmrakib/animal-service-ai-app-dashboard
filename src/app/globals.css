@@ -6,11 +6,15 @@
   --color-brand: #d08726;
   --color-brand-hover: #b8751d;
   --color-brand-light: #fef9f2;
+  --color-bg-subtle: #f8f6f2; /* Beige background */
+  --color-text-muted: #6b7280;
+  --color-border-subtle: #eaeaea;
 }
 
 body {
   font-family: var(--font-sans);
-  background-color: #f9fafb;
+  background-color: var(--color-bg-subtle);
+  color: #111827;
 }
 
 /* Custom utilities */
