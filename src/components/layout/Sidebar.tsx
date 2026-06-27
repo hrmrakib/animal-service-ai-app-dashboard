@@ -19,7 +19,7 @@ import clsx from "clsx";
 const navItems = [
   { name: "Dashboard", href: "/", icon: LayoutDashboard },
   { name: "Revenue & Profit", href: "/revenue-profit", icon: TrendingUp },
-  { name: "Manage Users", href: "#", icon: Users },
+  { name: "Manage Users", href: "/manage-users", icon: Users },
   { name: "Manage Transport", href: "#", icon: Truck },
   { name: "Manage Veterinary", href: "#", icon: Stethoscope },
   { name: "Create Notification", href: "#", icon: BellRing },
@@ -43,7 +43,7 @@ export function Sidebar() {
       {/* Navigation */}
       <nav className="flex-1 space-y-1 px-4 py-4 overflow-y-auto">
         {navItems.map((item) => {
-          const isActive = pathname === item.href;
+          const isActive = item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
           return (
             <Link
               key={item.name}

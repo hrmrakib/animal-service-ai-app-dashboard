@@ -7,11 +7,12 @@ interface StatCardProps {
   icon: ReactNode;
   iconBgColor?: string;
   className?: string;
+  withBorder?: boolean;
 }
 
-export function StatCard({ title, value, icon, iconBgColor = "bg-orange-100", className }: StatCardProps) {
+export function StatCard({ title, value, icon, iconBgColor = "bg-orange-100", className, withBorder = false }: StatCardProps) {
   return (
-    <div className={clsx("flex flex-col p-6 bg-white rounded-xl shadow-sm gap-4", className)}>
+    <div className={clsx("flex flex-col p-6 bg-white rounded-xl shadow-sm gap-4", withBorder && "border border-border-subtle", className)}>
       <div className={clsx("flex h-12 w-12 items-center justify-center rounded-lg", iconBgColor)}>
         {icon}
       </div>
