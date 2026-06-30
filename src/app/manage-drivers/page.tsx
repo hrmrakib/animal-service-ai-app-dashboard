@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/Button";
 import { DriverCard } from "./_components/DriverCard";
 import { CreateDriverModal } from "./_components/CreateDriverModal";
 import { DeleteDriverModal } from "./_components/DeleteDriverModal";
-import { RejectReasonModal } from "./_components/RejectReasonModal";
+import { RejectReasonModal } from "@/components/ui/RejectReasonModal";
 import { DriverProfileModal } from "./_components/DriverProfileModal";
 import { mockDrivers, Driver } from "./data";
 import { 
