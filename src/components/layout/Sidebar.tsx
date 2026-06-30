@@ -20,7 +20,7 @@ const navItems = [
   { name: "Dashboard", href: "/", icon: LayoutDashboard },
   { name: "Revenue & Profit", href: "/revenue-profit", icon: TrendingUp },
   { name: "Manage Users", href: "/manage-users", icon: Users },
-  { name: "Manage Transport", href: "#", icon: Truck },
+  { name: "Manage Drivers", href: "/manage-drivers", icon: Truck },
   { name: "Manage Veterinary", href: "#", icon: Stethoscope },
   { name: "Create Notification", href: "#", icon: BellRing },
   { name: "Support/Report", href: "#", icon: HelpCircle },
