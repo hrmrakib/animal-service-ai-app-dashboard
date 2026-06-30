@@ -22,8 +22,8 @@ const navItems = [
   { name: "Manage Users", href: "/manage-users", icon: Users },
   { name: "Manage Drivers", href: "/manage-drivers", icon: Truck },
   { name: "Manage Veterinary", href: "/manage-veterinary", icon: Stethoscope },
-  { name: "Create Notification", href: "#", icon: BellRing },
-  { name: "Support/Report", href: "#", icon: HelpCircle },
+  { name: "Create Notification", href: "/create-notification", icon: BellRing },
+  { name: "Support/Report", href: "/support-report", icon: HelpCircle },
   { name: "Settings", href: "#", icon: Settings },
 ];
 
