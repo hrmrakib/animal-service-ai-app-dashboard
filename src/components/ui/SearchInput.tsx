@@ -1,8 +1,7 @@
 import { Search } from "lucide-react";
 import React from "react";
 
-interface SearchInputProps {
-  placeholder?: string;
+interface SearchInputProps {  placeholder?: string;
   value: string; 
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void; 
 }
