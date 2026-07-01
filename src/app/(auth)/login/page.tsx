@@ -6,6 +6,7 @@ import Link from "next/link";
 import AuthFormCard from "@/components/auth/AuthFormCard";
 import { setUser } from "@/redux/features/auth/authSlice";
 import { useAppDispatch } from "@/redux/hooks";
+import GoBack from "@/components/ui/GoBack";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -69,6 +70,7 @@ export default function LoginPage() {
   return (
     <AuthFormCard title='Log In'>
       <form className='space-y-5 w-full flex flex-col' onSubmit={handleSubmit}>
+        <GoBack />
         {error && (
           <div className='text-sm text-red-500 bg-red-50 border border-red-100 rounded-lg px-3 py-2'>
             {error}
