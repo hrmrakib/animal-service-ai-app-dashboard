@@ -30,7 +30,7 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      const res = await fetch(`${getBaseUrl()}/api/v1/users/login/`, {
+      const res = await fetch(`${getBaseUrl()}/users/login/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

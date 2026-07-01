@@ -1,37 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { setUser } from "./authSlice";
 import baseAPI from "@/redux/api/api";
 
 const authAPI = baseAPI.injectEndpoints({
   endpoints: (builder) => ({
-    login: builder.mutation({
-      query: (credentials) => ({
-        url: "/auth/login/",
-        method: "POST",
-        body: credentials,
-      }),
-
-      // Transform the response to return only the 'data' object
-      async onQueryStarted(_, { dispatch, queryFulfilled }) {
-        try {
-          const { data } = await queryFulfilled;
-
-          dispatch(setUser({ user: data.user, token: data.access }));
-        } catch (err) {
-          console.error("Login failed", err);
-        }
-      },
-      invalidatesTags: ["User"],
-    }),
-
-    register: builder.mutation<{ message: string }, any>({
-      query: (payload) => ({
-        url: "/auth/register/",
-        method: "POST",
-        body: payload,
-      }),
-    }),
-
     verifyEmail: builder.mutation<
       { message: string },
       { email: string; otp: string }
@@ -83,7 +54,7 @@ const authAPI = baseAPI.injectEndpoints({
 
     forgotPassword: builder.mutation({
       query: (payload) => ({
-        url: "/auth/forgot-password/",
+        url: "/users/forgot-password/",
         method: "POST",
         body: payload,
       }),
@@ -109,8 +80,6 @@ const authAPI = baseAPI.injectEndpoints({
 
 // Export hooks for usage in components
 export const {
-  useLoginMutation,
-  useRegisterMutation,
   useVerifyEmailMutation,
   useResendOtpMutation,
   useGetMeQuery,
