@@ -6,7 +6,7 @@ import Link from "next/link";
 import AuthFormCard from "@/components/auth/AuthFormCard";
 import { setUser } from "@/redux/features/auth/authSlice";
 import { useAppDispatch } from "@/redux/hooks";
-import GoBack from "@/components/ui/GoBack";
+import { getBaseUrl } from "@/utils/getBaseUrl";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -30,19 +30,16 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/v1/users/login/`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            email_or_phone: email,
-            password: password,
-          }),
+      const res = await fetch(`${getBaseUrl()}/api/v1/users/login/`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
         },
-      );
+        body: JSON.stringify({
+          email_or_phone: email,
+          password: password,
+        }),
+      });
 
       const result = await res.json();
 
@@ -59,7 +56,7 @@ export default function LoginPage() {
       // Update redux store
       dispatch(setUser({ user, access, refresh }));
 
-      router.push("/dashboard");
+      router.push("/");
     } catch (err: any) {
       setError(err?.message || "Something went wrong. Please try again.");
     } finally {
@@ -70,7 +67,6 @@ export default function LoginPage() {
   return (
     <AuthFormCard title='Log In'>
       <form className='space-y-5 w-full flex flex-col' onSubmit={handleSubmit}>
-        <GoBack />
         {error && (
           <div className='text-sm text-red-500 bg-red-50 border border-red-100 rounded-lg px-3 py-2'>
             {error}

@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import LanguageToggle from "./LanguageToggle";
+import GoBack from "../ui/GoBack";
 
 interface AuthFormCardProps {
   title?: string;
@@ -17,6 +18,8 @@ export default function AuthFormCard({
 }: AuthFormCardProps) {
   return (
     <div className='w-full max-w-md mx-auto bg-white rounded-4xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-8 sm:p-10 flex flex-col min-h-dvh sm:min-h-0 sm:h-auto border border-gray-100'>
+      <GoBack />
+
       <div className='flex justify-between items-center mb-8'>
         {backHref ? (
           <Link

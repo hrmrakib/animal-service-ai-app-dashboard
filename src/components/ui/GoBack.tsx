@@ -30,7 +30,7 @@ export default function GoBack({
       onClick={handleClick}
       className={`inline-flex items-center gap-2 text-sm font-medium text-gray-700 hover:text-gray-900 transition-colors ${className}`}
     >
-      <MoveLeft className='h-4 w-4' />
+      <MoveLeft className='h-6 w-6' />
       {label}
     </button>
   );
