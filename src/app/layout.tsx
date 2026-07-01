@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { ToastProvider } from "@/components/ui/ToastProvider";
+import Providers from "@/redux/features/Providers";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -21,8 +22,10 @@ export default function RootLayout({
   return (
     <html lang='en' className={`${inter.variable} h-full antialiased`}>
       <body className='h-full m-0 p-0 overflow-hidden'>
-        {children}
-        <ToastProvider />
+        <Providers>
+          {children}
+          <ToastProvider />
+        </Providers>
       </body>
     </html>
   );
