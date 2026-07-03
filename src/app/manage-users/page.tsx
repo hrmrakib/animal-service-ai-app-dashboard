@@ -24,9 +24,7 @@ interface ApiUser {
 const PAGE_SIZE = 8;
 
 function formatRole(role: string) {
-  return role
-    .replace(/_/g, " ")
-    .replace(/\b\w/g, (c) => c.toUpperCase());
+  return role.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
 function formatDate(dateStr: string) {
@@ -52,26 +50,26 @@ export default function ManageUsersPage() {
       (u) =>
         u.name?.toLowerCase().includes(q) ||
         u.email?.toLowerCase().includes(q) ||
-        u.role?.toLowerCase().includes(q)
+        u.role?.toLowerCase().includes(q),
     );
   }, [users, search]);
 
   const totalPages = Math.max(1, Math.ceil(filteredUsers.length / PAGE_SIZE));
   const paginatedUsers = filteredUsers.slice(
     (currentPage - 1) * PAGE_SIZE,
-    currentPage * PAGE_SIZE
+    currentPage * PAGE_SIZE,
   );
 
   return (
     <DashboardLayout
-      title="Manage Users"
+      title='Manage Users'
       subtitle={`Total registered accounts: ${users.length} users`}
     >
-      <div className="flex flex-col gap-4 bg-white rounded-xl shadow-sm p-6 mt-2">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-2">
-          <h2 className="text-lg font-semibold text-gray-900">Recent Users</h2>
+      <div className='flex flex-col gap-4 bg-white rounded-xl shadow-sm p-6 mt-2'>
+        <div className='flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-2'>
+          <h2 className='text-lg font-semibold text-gray-900'>Recent Users</h2>
           <SearchInput
-            placeholder="Search Users"
+            placeholder='Search Users'
             value={search}
             onChange={(e) => {
               setSearch(e.target.value);
@@ -81,11 +79,15 @@ export default function ManageUsersPage() {
         </div>
 
         {isLoading ? (
-          <div className="py-12 text-center text-gray-500">Loading users...</div>
+          <div className='py-12 text-center text-gray-500'>
+            Loading users...
+          </div>
         ) : isError ? (
-          <div className="py-12 text-center text-red-500">Failed to load users.</div>
+          <div className='py-12 text-center text-red-500'>
+            Failed to load users.
+          </div>
         ) : paginatedUsers.length === 0 ? (
-          <div className="py-12 text-center text-gray-500">No users found.</div>
+          <div className='py-12 text-center text-gray-500'>No users found.</div>
         ) : (
           <>
             <Table
@@ -95,21 +97,24 @@ export default function ManageUsersPage() {
                 {
                   header: "Users",
                   accessor: (row) => (
-                    <div className="flex items-center gap-3">
-                      <input type="checkbox" className="rounded border-gray-300 text-brand focus:ring-brand" />
-                      <div className="h-8 w-8 rounded-full bg-pink-200 overflow-hidden shrink-0 flex items-center justify-center text-pink-700 font-bold text-xs">
+                    <div className='flex items-center gap-3'>
+                      <div className='h-8 w-8 rounded-full bg-pink-200 overflow-hidden shrink-0 flex items-center justify-center text-pink-700 font-bold text-xs'>
                         {(row.name || row.email).charAt(0).toUpperCase()}
                       </div>
-                      <div className="flex flex-col">
-                        <span className="font-medium text-gray-900">
+                      <div className='flex flex-col'>
+                        <span className='font-medium text-gray-900'>
                           {row.name || "—"}
                         </span>
-                        <span className="text-xs text-gray-500">#{row.id}</span>
+                        <span className='text-xs text-gray-500'>#{row.id}</span>
                       </div>
                     </div>
                   ),
                 },
-                { header: "Gmail", accessor: (row) => row.email, className: "text-gray-500" },
+                {
+                  header: "Gmail",
+                  accessor: (row) => row.email,
+                  className: "text-gray-500",
+                },
                 {
                   header: "Phone",
                   accessor: (row) => row.phone || "—",
@@ -134,15 +139,15 @@ export default function ManageUsersPage() {
                 {
                   header: "Action",
                   accessor: (row) => (
-                    <div className="flex items-center gap-3">
+                    <div className='flex items-center gap-3'>
                       <Link
                         href={`/manage-users/${row.id}`}
-                        className="text-gray-400 hover:text-gray-600 transition-colors"
+                        className='text-gray-400 hover:text-gray-600 transition-colors'
                       >
-                        <Eye className="h-4 w-4" />
+                        <Eye className='h-4 w-4' />
                       </Link>
-                      <button className="text-gray-400 hover:text-red-600 transition-colors">
-                        <Ban className="h-4 w-4" />
+                      <button className='text-gray-400 hover:text-red-600 transition-colors'>
+                        <Ban className='h-4 w-4' />
                       </button>
                     </div>
                   ),
