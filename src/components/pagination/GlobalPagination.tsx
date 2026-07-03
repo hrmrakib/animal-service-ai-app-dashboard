@@ -27,9 +27,9 @@ export default function GlobalPagination({
       <button
         onClick={() => onPageChange(currentPage - 1)}
         disabled={currentPage === 1}
-        className='px-4 py-2 rounded-lg border border-blue-600 text-blue-600 disabled:opacity-30 hover:bg-white/5 hover:text-blue-700 transition-all text-sm font-medium cursor-pointer disabled:cursor-not-allowed'
+        className='px-4 py-2 rounded-lg border border-[#D2881B] text-[#D2881B] disabled:opacity-30 hover:bg-white/5 hover:text-[#df890a] transition-all text-sm font-medium cursor-pointer disabled:cursor-not-allowed'
       >
-        Prev 
+        Prev
       </button>
 
       <div className='flex gap-1.5'>
@@ -41,8 +41,8 @@ export default function GlobalPagination({
               onClick={() => onPageChange(pageNumber)}
               className={`w-10 h-10 rounded-lg text-sm font-medium transition-all duration-200 cursor-pointer border ${
                 isActive
-                  ? "bg-linear-to-r from-blue-600 to-blue-400 text-white border-blue-500 font-bold shadow-lg shadow-blue-500/10 scale-105"
-                  : "border-blue-600 text-blue-600 hover:border-blue-700 hover:text-blue-700"
+                  ? "bg-linear-to-r from-[#D2881B] to-[#d18e29] text-white border-[#ac7420] font-bold shadow-lg shadow-[#ac7420]/10 scale-105"
+                  : "border-[#D2881B] text-[#D2881B] hover:border-[#df890a] hover:text-[#df890a]"
               }`}
             >
               {pageNumber}
@@ -54,7 +54,7 @@ export default function GlobalPagination({
       <button
         onClick={() => onPageChange(currentPage + 1)}
         disabled={currentPage === totalPages}
-        className='px-4 py-2 rounded-lg border border-blue-600 text-blue-600 disabled:opacity-30 hover:bg-white/5 hover:text-blue-700 transition-all text-sm font-medium cursor-pointer disabled:cursor-not-allowed'
+        className='px-4 py-2 rounded-lg border border-[#D2881B] text-[#D2881B] disabled:opacity-30 hover:bg-white/5 hover:text-[#df890a] transition-all text-sm font-medium cursor-pointer disabled:cursor-not-allowed'
       >
         Next
       </button>

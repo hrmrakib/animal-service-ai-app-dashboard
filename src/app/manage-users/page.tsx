@@ -3,12 +3,12 @@
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { Table } from "@/components/ui/Table";
 import { Badge } from "@/components/ui/Badge";
-import { Pagination } from "@/components/ui/Pagination";
 import { SearchInput } from "@/components/ui/SearchInput";
 import { Eye, Ban } from "lucide-react";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { useGetAllUsersQuery } from "@/redux/features/user/userAPI";
+import GlobalPagination from "@/components/pagination/GlobalPagination";
 
 interface ApiUser {
   id: number;
@@ -20,8 +20,6 @@ interface ApiUser {
   is_suspended: boolean;
   created_at: string;
 }
-
-const PAGE_SIZE = 8;
 
 function formatRole(role: string) {
   return role.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
@@ -38,27 +36,16 @@ function formatDate(dateStr: string) {
 export default function ManageUsersPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [search, setSearch] = useState("");
+  const limit = 2;
 
-  const { data, isLoading, isError } = useGetAllUsersQuery(undefined);
+  const { data, isLoading, isError } = useGetAllUsersQuery({
+    page: currentPage,
+    limit,
+  });
 
-  const users: ApiUser[] = data?.data ?? [];
+  const users: ApiUser[] = data?.results ?? [];
 
-  const filteredUsers = useMemo(() => {
-    if (!search.trim()) return users;
-    const q = search.toLowerCase();
-    return users.filter(
-      (u) =>
-        u.name?.toLowerCase().includes(q) ||
-        u.email?.toLowerCase().includes(q) ||
-        u.role?.toLowerCase().includes(q),
-    );
-  }, [users, search]);
-
-  const totalPages = Math.max(1, Math.ceil(filteredUsers.length / PAGE_SIZE));
-  const paginatedUsers = filteredUsers.slice(
-    (currentPage - 1) * PAGE_SIZE,
-    currentPage * PAGE_SIZE,
-  );
+  const totalPages = 5;
 
   return (
     <DashboardLayout
@@ -86,12 +73,12 @@ export default function ManageUsersPage() {
           <div className='py-12 text-center text-red-500'>
             Failed to load users.
           </div>
-        ) : paginatedUsers.length === 0 ? (
+        ) : users.length === 0 ? (
           <div className='py-12 text-center text-gray-500'>No users found.</div>
         ) : (
           <>
             <Table
-              data={paginatedUsers}
+              data={users}
               keyExtractor={(row) => row.id}
               columns={[
                 {
@@ -155,7 +142,7 @@ export default function ManageUsersPage() {
               ]}
             />
 
-            <Pagination
+            <GlobalPagination
               currentPage={currentPage}
               totalPages={totalPages}
               onPageChange={setCurrentPage}
