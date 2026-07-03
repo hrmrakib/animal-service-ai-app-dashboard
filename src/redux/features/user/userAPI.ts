@@ -8,7 +8,23 @@ const userAPI = baseAPI.injectEndpoints({
         params,
       }),
     }),
+
+    getUserDetails: builder.query<
+      void,
+      {
+        role: string;
+        id: string;
+        page?: number;
+        limit?: number;
+        search?: string;
+      }
+    >({
+      query: ({ role, id, page, limit, search }) => ({
+        url: `/users/${role}/${id}/analytics/`,
+        params: { page, limit, search },
+      }),
+    }),
   }),
 });
 
-export const { useGetAllUsersQuery } = userAPI;
+export const { useGetAllUsersQuery, useGetUserDetailsQuery } = userAPI;

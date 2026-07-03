@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/Badge";
 import { SearchInput } from "@/components/ui/SearchInput";
 import { Eye, Ban } from "lucide-react";
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { useGetAllUsersQuery } from "@/redux/features/user/userAPI";
 import GlobalPagination from "@/components/pagination/GlobalPagination";
 
@@ -36,7 +36,7 @@ function formatDate(dateStr: string) {
 export default function ManageUsersPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [search, setSearch] = useState("");
-  const limit = 2;
+  const limit = 8;
 
   const { data, isLoading, isError } = useGetAllUsersQuery({
     page: currentPage,
@@ -45,7 +45,7 @@ export default function ManageUsersPage() {
 
   const users: ApiUser[] = data?.results ?? [];
 
-  const totalPages = 5;
+  const totalPages = 2;
 
   return (
     <DashboardLayout
@@ -128,7 +128,7 @@ export default function ManageUsersPage() {
                   accessor: (row) => (
                     <div className='flex items-center gap-3'>
                       <Link
-                        href={`/manage-users/${row.id}`}
+                        href={`/manage-users/user-details?role=${row.role}&id=${row.id}`}
                         className='text-gray-400 hover:text-gray-600 transition-colors'
                       >
                         <Eye className='h-4 w-4' />
