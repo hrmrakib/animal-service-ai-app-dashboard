@@ -18,6 +18,7 @@ import {
 import clsx from "clsx";
 import { useAppDispatch } from "@/redux/hooks";
 import { logout } from "@/redux/features/auth/authSlice";
+import Image from "next/image";
 
 const navItems = [
   { name: "Dashboard", href: "/", icon: LayoutDashboard },
@@ -72,10 +73,13 @@ export function Sidebar() {
   return (
     <aside className='fixed inset-y-0 left-0 z-50 flex w-64 flex-col h-full bg-white border-r border-border-subtle transition-transform duration-300 md:translate-x-0 -translate-x-full lg:static lg:flex'>
       {/* Logo Area */}
-      <div className='flex h-20 shrink-0 items-center justify-center px-6'>
-        <div className='flex flex-col items-center justify-center'>
-          <ShieldHalf className='h-10 w-10 text-blue-900 fill-blue-900' />
-        </div>
+      <div className='flex h-35 shrink-0 items-center justify-center px-6'>
+        <Image
+          src={"/images/logo.png"}
+          width={80}
+          height={80}
+          alt='Animal service'
+        />
       </div>
 
       {/* Navigation */}
