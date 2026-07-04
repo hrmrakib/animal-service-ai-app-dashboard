@@ -42,7 +42,7 @@ export function DashboardLayout({
         />
 
         <main className='flex-1 overflow-y-auto'>
-          <div className='mx-auto container'>{children}</div>
+          <div className='mx-auto container py-10'>{children}</div>
         </main>
       </div>
     </div>

@@ -89,6 +89,7 @@ export function Sidebar() {
             item.href === "/"
               ? pathname === "/"
               : pathname.startsWith(item.href);
+
           return (
             <Link
               key={item.name}

@@ -2,9 +2,7 @@
 
 import React, { useState } from "react";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
-import { Button } from "@/components/ui/Button";
 import { DriverCard } from "./_components/DriverCard";
-import { CreateDriverModal } from "./_components/CreateDriverModal";
 import { DeleteDriverModal } from "./_components/DeleteDriverModal";
 import { RejectReasonModal } from "@/components/ui/RejectReasonModal";
 import { DriverProfileModal } from "./_components/DriverProfileModal";
@@ -18,6 +16,7 @@ import {
   List,
   Grid2X2,
 } from "lucide-react";
+import { useGetAllDriversQuery } from "@/redux/features/driver/driverAPI";
 
 export default function ManageDriversPage() {
   const [drivers, setDrivers] = useState<Driver[]>(mockDrivers);
@@ -30,6 +29,10 @@ export default function ManageDriversPage() {
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [isRejectOpen, setIsRejectOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+
+  const { data } = useGetAllDriversQuery(undefined);
+
+  console.log({ data });
 
   // Handlers
   const handleCreateSubmit = (e: React.FormEvent) => {
@@ -168,13 +171,6 @@ export default function ManageDriversPage() {
           </div>
         </div>
       </div>
-
-      {/* Modals */}
-      <CreateDriverModal
-        isOpen={isCreateOpen}
-        onClose={() => setIsCreateOpen(false)}
-        onSubmit={handleCreateSubmit}
-      />
 
       <DeleteDriverModal
         isOpen={isDeleteOpen}
