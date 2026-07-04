@@ -28,7 +28,7 @@ const navItems = [
   { name: "Manage Veterinary", href: "/manage-veterinary", icon: Stethoscope },
   { name: "Create Notification", href: "/create-notification", icon: BellRing },
   { name: "Support/Report", href: "/support-report", icon: HelpCircle },
-  { name: "Settings", href: "#", icon: Settings },
+  { name: "Settings", href: "/settings/profile-info", icon: Settings },
 ];
 
 export function Sidebar() {
