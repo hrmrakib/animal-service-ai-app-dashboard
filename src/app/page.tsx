@@ -1,3 +1,5 @@
+"use client";
+
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { StatCard } from "@/components/ui/StatCard";
 import { AreaChartPlaceholder } from "@/components/ui/AreaChartPlaceholder";
@@ -13,6 +15,10 @@ import {
   Eye,
   Ban,
 } from "lucide-react";
+import {
+  useGetOverviewQuery,
+  useGetPercentageQuery,
+} from "@/redux/features/overview/overviewAPI";
 
 const recentUsers = [
   {
@@ -68,6 +74,11 @@ const recentUsers = [
 ];
 
 export default function Home() {
+  const { data } = useGetOverviewQuery(undefined);
+  const { data: percentageData } = useGetPercentageQuery(undefined);
+
+  console.log(percentageData);
+
   return (
     <DashboardLayout
       title='Overview'
@@ -110,10 +121,10 @@ export default function Home() {
         {/* Charts Row */}
         <div className='grid grid-cols-1 gap-6 lg:grid-cols-3'>
           <div className='lg:col-span-2 min-h-100'>
-            <AreaChartPlaceholder />
+            <AreaChartPlaceholder data={data} />
           </div>
           <div className='min-h-100'>
-            <DonutChartPlaceholder />
+            <DonutChartPlaceholder percentageData={percentageData} />
           </div>
         </div>
 
