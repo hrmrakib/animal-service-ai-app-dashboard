@@ -9,7 +9,7 @@ type PercentageData = {
 export function DonutChartPlaceholder({
   percentageData,
 }: {
-  percentageData: PercentageData;
+  percentageData?: PercentageData;
 }) {
   const {
     product_orders_percentage = 0,
