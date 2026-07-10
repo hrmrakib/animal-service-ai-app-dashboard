@@ -44,3 +44,29 @@ export interface VeterinarianApi {
   total_reviews: number;
   reviews_list: any[];
 }
+
+export interface SellerApi {
+  id: number;
+  profile_pic: string | null;
+  name: string;
+  email: string;
+  phone: string | null;
+  location: string | null;
+  delivery_address: string | null;
+  delivery_latitude: string | null;
+  delivery_longitude: string | null;
+  role: string;
+  is_active: boolean;
+  onesignal_id: string | null;
+  created_at: string;
+  updated_at: string;
+  business_name: string | null;
+  business_location: string | null;
+  business_latitude: string | null;
+  business_longitude: string | null;
+  average_rating: number;
+  total_reviews: number;
+  reviews_list: any[];
+  // is_verified isn't in this sample response, but keep optional in case backend adds it
+  is_verified?: boolean;
+}

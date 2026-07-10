@@ -61,6 +61,7 @@ const manageDriversVeterinariansAPI = baseAPI.injectEndpoints({
 export const {
   useGetAllDriversQuery,
   useGetAllVeterinariansQuery,
+  useGetAllSellersQuery,
   useAcceptUserMutation,
   useRejectUserMutation,
   useResubmitUserMutation,
