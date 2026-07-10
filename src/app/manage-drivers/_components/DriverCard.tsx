@@ -1,5 +1,5 @@
 import React from "react";
-import { Star, MapPin, Trash2, Edit, Eye } from "lucide-react";
+import { Star, MapPin, Trash2, Eye, Mail } from "lucide-react";
 import clsx from "clsx";
 import type { Driver } from "../data";
 
@@ -28,17 +28,39 @@ export function DriverCard({
         return "bg-red-50 text-red-600";
       case "Accept":
         return "bg-blue-50 text-blue-600";
+      case "Pending":
+        return "bg-yellow-50 text-yellow-600";
       default:
         return "bg-gray-100 text-gray-600";
     }
   };
 
   const getInitials = (name: string) => {
-    const parts = name.split(" ");
+    const parts = name.trim().split(" ").filter(Boolean);
     if (parts.length >= 2) {
       return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
     }
     return name.slice(0, 2).toUpperCase();
+  };
+
+  const Avatar = ({ size }: { size: "sm" | "lg" }) => {
+    const dims = size === "sm" ? "w-12 h-12 text-lg" : "w-12 h-12 text-lg";
+    return driver.profilePic ? (
+      <img
+        src={driver.profilePic}
+        alt={driver.name}
+        className={clsx(dims, "rounded-full object-cover")}
+      />
+    ) : (
+      <div
+        className={clsx(
+          dims,
+          "rounded-full bg-[#d08726] text-white flex items-center justify-center font-bold",
+        )}
+      >
+        {getInitials(driver.name)}
+      </div>
+    );
   };
 
   if (viewMode === "list") {
@@ -46,9 +68,7 @@ export function DriverCard({
       <div className='bg-white rounded-xl border border-gray-100 p-4 shadow-sm flex items-center justify-between gap-4 transition-shadow hover:shadow-md'>
         <div className='flex items-center gap-4 w-1/4'>
           <div className='relative shrink-0'>
-            <div className='w-12 h-12 rounded-full bg-[#d08726] text-white flex items-center justify-center font-bold text-lg'>
-              {getInitials(driver.name)}
-            </div>
+            <Avatar size='sm' />
             {driver.status !== "Offline" && (
               <div className='absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full'></div>
             )}
@@ -60,41 +80,37 @@ export function DriverCard({
               <span className='font-medium text-gray-700 mr-1'>
                 {driver.rating}
               </span>
-              <span>({driver.totalTrips})</span>
+              <span>({driver.totalTrips} reviews)</span>
             </div>
           </div>
         </div>
 
         <div className='flex flex-col gap-1 w-1/4'>
           <div className='flex items-center gap-2 text-sm'>
-            <span className='text-gray-500 text-xs w-24'>Today's Earnings</span>
-            <span className='font-bold text-gray-900'>
-              ${driver.todaysEarnings.toFixed(2)}
+            <span className='text-gray-500 text-xs w-24'>Experience</span>
+            <span className='font-semibold text-gray-900'>
+              {driver.yearOfExperience} yr
             </span>
           </div>
           <div className='flex items-center gap-2 text-sm'>
-            <span className='text-gray-500 text-xs w-24'>Trips Completed</span>
-            <span className='font-semibold text-gray-900'>
-              {driver.tripsCompleted}
+            <span className='text-gray-500 text-xs w-24'>Vehicle</span>
+            <span className='font-semibold text-gray-900 truncate'>
+              {driver.vehicleType || "N/A"}
             </span>
           </div>
         </div>
 
         <div className='w-1/4'>
-          {driver.currentTrip ? (
-            <div className='flex flex-col gap-1'>
-              <span className='text-xs text-blue-600 font-medium'>
-                Current Trip
-              </span>
-              <div className='flex items-center text-xs text-gray-500 truncate'>
-                <MapPin className='w-3 h-3 text-blue-500 mr-1 shrink-0' />
-                <span className='truncate'>
-                  {driver.currentTrip.from} → {driver.currentTrip.to}
-                </span>
-              </div>
+          {driver.location ? (
+            <div className='flex items-center text-xs text-gray-500 truncate'>
+              <MapPin className='w-3 h-3 text-blue-500 mr-1 shrink-0' />
+              <span className='truncate'>{driver.location}</span>
             </div>
           ) : (
-            <div className='text-xs text-gray-400 italic'>No active trip</div>
+            <div className='flex items-center text-xs text-gray-400 truncate'>
+              <Mail className='w-3 h-3 mr-1 shrink-0' />
+              <span className='truncate'>{driver.email}</span>
+            </div>
           )}
         </div>
 
@@ -133,10 +149,7 @@ export function DriverCard({
       <div className='flex items-start justify-between'>
         <div className='flex items-center gap-3'>
           <div className='relative'>
-            <div className='w-12 h-12 rounded-full bg-[#d08726] text-white flex items-center justify-center font-bold text-lg'>
-              {getInitials(driver.name)}
-            </div>
-            {/* Online indicator */}
+            <Avatar size='lg' />
             {driver.status !== "Offline" && (
               <div className='absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full'></div>
             )}
@@ -148,7 +161,7 @@ export function DriverCard({
               <span className='font-medium text-gray-700 mr-1'>
                 {driver.rating}
               </span>
-              <span>({driver.totalTrips})</span>
+              <span>({driver.totalTrips} reviews)</span>
             </div>
           </div>
         </div>
@@ -165,36 +178,32 @@ export function DriverCard({
       {/* Stats Block */}
       <div className='bg-[#FAF9F6] rounded-lg p-3 flex flex-col gap-2'>
         <div className='flex justify-between items-center text-sm'>
-          <span className='text-gray-500 text-xs'>Today's Earnings</span>
+          <span className='text-gray-500 text-xs'>Experience</span>
           <span className='font-bold text-gray-900'>
-            ${driver.todaysEarnings.toFixed(2)}
+            {driver.yearOfExperience} yr
           </span>
         </div>
         <div className='flex justify-between items-center text-sm'>
-          <span className='text-gray-500 text-xs'>Trips Completed</span>
-          <span className='font-semibold text-gray-900'>
-            {driver.tripsCompleted}
+          <span className='text-gray-500 text-xs'>Vehicle Type</span>
+          <span className='font-semibold text-gray-900 truncate'>
+            {driver.vehicleType || "N/A"}
           </span>
         </div>
       </div>
 
-      {/* Current Trip */}
+      {/* Location / contact */}
       <div className='min-h-12'>
-        {driver.currentTrip ? (
+        {driver.location ? (
           <div className='flex flex-col gap-1'>
-            <span className='text-xs text-blue-600 font-medium'>
-              Current Trip
-            </span>
+            <span className='text-xs text-blue-600 font-medium'>Location</span>
             <div className='flex items-center text-xs text-gray-500 truncate'>
               <MapPin className='w-3 h-3 text-blue-500 mr-1 shrink-0' />
-              <span className='truncate'>
-                {driver.currentTrip.from} → {driver.currentTrip.to}
-              </span>
+              <span className='truncate'>{driver.location}</span>
             </div>
           </div>
         ) : (
           <div className='text-xs text-gray-400 italic flex items-center h-full'>
-            No active trip
+            No location on file
           </div>
         )}
       </div>
@@ -207,8 +216,6 @@ export function DriverCard({
         >
           <Trash2 className='w-4 h-4' />
         </button>
-        <div className='w-px h-6 bg-gray-200'></div>
-
         <div className='w-px h-6 bg-gray-200'></div>
         <button
           onClick={onView}

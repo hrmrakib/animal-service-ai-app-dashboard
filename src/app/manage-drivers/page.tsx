@@ -6,7 +6,7 @@ import { DriverCard } from "./_components/DriverCard";
 import { DeleteDriverModal } from "./_components/DeleteDriverModal";
 import { RejectReasonModal } from "@/components/ui/RejectReasonModal";
 import { DriverProfileModal } from "./_components/DriverProfileModal";
-import { mockDrivers, Driver } from "./data";
+import { Driver } from "./data";
 import {
   Banknote,
   Wallet,
@@ -16,90 +16,158 @@ import {
   List,
   Grid2X2,
 } from "lucide-react";
-import { useGetAllDriversQuery } from "@/redux/features/driver/driverAPI";
+import { useGetAllDriversQuery } from "@/redux/features/manage/manageDriversVeterinariansAPI";
+import {
+  TransportProviderApi,
+  useAcceptUserMutation,
+  useDeleteUserMutation,
+  useRejectUserMutation,
+  useResubmitUserMutation,
+} from "@/redux/features/manage/manageDriversVeterinariansAPI";
+import { toast } from "react-hot-toast";
+
+function mapApiDriverToDriver(item: TransportProviderApi): Driver {
+  const status: Driver["status"] = !item.is_verified
+    ? "Pending"
+    : item.rider_status === "suspended"
+      ? "Reject"
+      : item.rider_status === "active"
+        ? "Available"
+        : "Offline";
+
+  return {
+    id: item.id,
+    name: item.name,
+    email: item.email,
+    phone: item.phone,
+    profilePic: item.profile_pic,
+    location: item.location,
+    rating: item.average_rating ?? 0,
+    totalTrips: item.total_reviews ?? 0,
+    status,
+    isVerified: item.is_verified,
+    riderStatus: item.rider_status,
+    license: item.license,
+    licenseExpiry: item.license_expiry,
+    licenseType: item.license_type,
+    vehicleType: item.vehicle_type,
+    vehicleYear: item.vehicle_year,
+    yearOfExperience: item.year_of_experience ?? 0,
+  };
+}
+
+type ModalAction = "reject" | "resubmit" | null;
 
 export default function ManageDriversPage() {
-  const [drivers, setDrivers] = useState<Driver[]>(mockDrivers);
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
-
-  // Modals state
-  const [isCreateOpen, setIsCreateOpen] = useState(false);
 
   const [selectedDriver, setSelectedDriver] = useState<Driver | null>(null);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [isRejectOpen, setIsRejectOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [modalAction, setModalAction] = useState<ModalAction>(null);
 
-  const { data } = useGetAllDriversQuery(undefined);
+  const { data, isLoading, isError, refetch } =
+    useGetAllDriversQuery(undefined);
 
-  console.log({ data });
+  const [acceptUser, { isLoading: isAccepting }] = useAcceptUserMutation();
+  const [rejectUser, { isLoading: isRejecting }] = useRejectUserMutation();
+  const [resubmitUser, { isLoading: isResubmitting }] =
+    useResubmitUserMutation();
+  const [deleteUser, { isLoading: isDeleting }] = useDeleteUserMutation();
 
-  // Handlers
-  const handleCreateSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    // Simulate creation
-    setIsCreateOpen(false);
-  };
+  const drivers: Driver[] = (data?.results ?? []).map(mapApiDriverToDriver);
+  const summary = data?.summary;
 
-  const handleDeleteConfirm = () => {
-    if (selectedDriver) {
-      setDrivers(drivers.filter((d) => d.id !== selectedDriver.id));
-      setIsDeleteOpen(false);
+  const handleAccept = async () => {
+    if (!selectedDriver) return;
+    try {
+      await acceptUser(selectedDriver.id).unwrap();
+      toast.success("Driver accepted successfully");
+      setIsProfileOpen(false);
       setSelectedDriver(null);
+      refetch();
+    } catch {
+      toast.error("Failed to accept driver");
     }
   };
 
-  const handleRejectSubmit = (reason: string) => {
-    // Simulate rejection
-    setIsRejectOpen(false);
-    setIsProfileOpen(false); // Close profile if opened from there
-    setSelectedDriver(null);
+  const handleRejectSubmit = async (reason: string) => {
+    if (!selectedDriver || !modalAction) return;
+    try {
+      if (modalAction === "reject") {
+        await rejectUser({ id: selectedDriver.id, data: { reason } }).unwrap();
+        toast.success("Driver rejected successfully");
+      } else {
+        await resubmitUser({
+          id: selectedDriver.id,
+          data: { reason },
+        }).unwrap();
+        toast.success("Resubmit request sent successfully");
+      }
+      setIsRejectOpen(false);
+      setIsProfileOpen(false);
+      setSelectedDriver(null);
+      setModalAction(null);
+      refetch();
+    } catch {
+      toast.error(
+        modalAction === "reject"
+          ? "Failed to reject driver"
+          : "Failed to request resubmit",
+      );
+    }
   };
 
-  const handleAccept = () => {
-    // Simulate accept
-    setIsProfileOpen(false);
-    setSelectedDriver(null);
+  const handleDeleteConfirm = async () => {
+    if (!selectedDriver) return;
+    try {
+      await deleteUser(selectedDriver.id).unwrap();
+      toast.success("Driver deleted successfully");
+      setIsDeleteOpen(false);
+      setSelectedDriver(null);
+      refetch();
+    } catch {
+      toast.error("Failed to delete driver");
+    }
   };
 
-  // Stat cards data
   const stats = [
     {
-      label: "Total Earnings",
-      value: "SAR 725",
+      label: "Total Revenue",
+      value: `$${(summary?.total_revenue ?? 0).toFixed(2)}`,
       icon: <Banknote className='w-5 h-5 text-blue-500' />,
       bg: "bg-blue-50",
     },
     {
-      label: "Today's Earnings",
-      value: "SAR 125",
+      label: "Total Trips",
+      value: `${summary?.total_trips ?? 0}`,
       icon: <Wallet className='w-5 h-5 text-orange-500' />,
       bg: "bg-orange-50",
     },
     {
       label: "Total Drivers",
-      value: "56",
+      value: `${summary?.total_transport_providers ?? 0}`,
       icon: <Car className='w-5 h-5 text-blue-500' />,
       bg: "bg-blue-50",
     },
     {
-      label: "Online Drivers",
-      value: "12",
-      icon: <Users className='w-5 h-5 text-red-500' />,
-      bg: "bg-red-50",
+      label: "Verified Drivers",
+      value: `${summary?.verified_count ?? 0}`,
+      icon: <Users className='w-5 h-5 text-green-500' />,
+      bg: "bg-green-50",
     },
     {
-      label: "On Active Trips",
-      value: "15",
-      icon: <Truck className='w-5 h-5 text-green-500' />,
-      bg: "bg-green-50",
+      label: "Unverified Drivers",
+      value: `${summary?.unverified_count ?? 0}`,
+      icon: <Truck className='w-5 h-5 text-red-500' />,
+      bg: "bg-red-50",
     },
   ];
 
   return (
     <DashboardLayout title='Drivers' subtitle='Welcome back, Admin'>
       <div className='flex flex-col gap-6 mt-4'>
-        {/* Stat Cards */}
         <div className='grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4'>
           {stats.map((stat, idx) => (
             <div
@@ -121,12 +189,9 @@ export default function ManageDriversPage() {
           ))}
         </div>
 
-        {/* Main Content Area */}
         <div className='bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex flex-col gap-6'>
-          {/* Header Controls */}
           <div className='flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4'>
             <h2 className='text-lg font-bold text-gray-900'>All Drivers</h2>
-
             <div className='flex items-center gap-3'>
               <div className='flex items-center bg-gray-50 border border-gray-200 rounded-lg p-1'>
                 <button
@@ -145,30 +210,43 @@ export default function ManageDriversPage() {
             </div>
           </div>
 
-          {/* Grid of Drivers */}
-          <div
-            className={
-              viewMode === "grid"
-                ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5"
-                : "flex flex-col gap-4"
-            }
-          >
-            {drivers.map((driver) => (
-              <DriverCard
-                key={driver.id}
-                driver={driver}
-                viewMode={viewMode}
-                onDelete={() => {
-                  setSelectedDriver(driver);
-                  setIsDeleteOpen(true);
-                }}
-                onView={() => {
-                  setSelectedDriver(driver);
-                  setIsProfileOpen(true);
-                }}
-              />
-            ))}
-          </div>
+          {isLoading ? (
+            <div className='py-16 text-center text-gray-400 text-sm'>
+              Loading drivers...
+            </div>
+          ) : isError ? (
+            <div className='py-16 text-center text-red-500 text-sm'>
+              Failed to load drivers. Please try again.
+            </div>
+          ) : drivers.length === 0 ? (
+            <div className='py-16 text-center text-gray-400 text-sm'>
+              No drivers found.
+            </div>
+          ) : (
+            <div
+              className={
+                viewMode === "grid"
+                  ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5"
+                  : "flex flex-col gap-4"
+              }
+            >
+              {drivers.map((driver) => (
+                <DriverCard
+                  key={driver.id}
+                  driver={driver}
+                  viewMode={viewMode}
+                  onDelete={() => {
+                    setSelectedDriver(driver);
+                    setIsDeleteOpen(true);
+                  }}
+                  onView={() => {
+                    setSelectedDriver(driver);
+                    setIsProfileOpen(true);
+                  }}
+                />
+              ))}
+            </div>
+          )}
         </div>
       </div>
 
@@ -180,6 +258,7 @@ export default function ManageDriversPage() {
         }}
         onConfirm={handleDeleteConfirm}
         driver={selectedDriver}
+        isDeleting={isDeleting}
       />
 
       <DriverProfileModal
@@ -189,15 +268,27 @@ export default function ManageDriversPage() {
           setSelectedDriver(null);
         }}
         driver={selectedDriver}
-        onReject={() => setIsRejectOpen(true)}
-        onResubmit={() => setIsRejectOpen(true)}
+        onReject={() => {
+          setModalAction("reject");
+          setIsRejectOpen(true);
+        }}
+        onResubmit={() => {
+          setModalAction("resubmit");
+          setIsRejectOpen(true);
+        }}
         onAccept={handleAccept}
+        isAccepting={isAccepting}
       />
 
       <RejectReasonModal
         isOpen={isRejectOpen}
-        onClose={() => setIsRejectOpen(false)}
+        onClose={() => {
+          setIsRejectOpen(false);
+          setModalAction(null);
+        }}
         onSubmit={handleRejectSubmit}
+        title={modalAction === "resubmit" ? "Resubmit Reason" : "Reject Reason"}
+        isSubmitting={modalAction === "reject" ? isRejecting : isResubmitting}
       />
     </DashboardLayout>
   );
