@@ -16,8 +16,26 @@ const notificationAPI = baseAPI.injectEndpoints({
         body: notification,
       }),
     }),
+
+    getUserNotifications: builder.query({
+      query: () => ({
+        url: "/users/notifications/user/",
+        method: "GET",
+      }),
+    }),
+
+    deleteUserNotification: builder.mutation({
+      query: (notificationId) => ({
+        url: `/users/notifications/${notificationId}/delete/`,
+        method: "DELETE",
+      }),
+    }),
   }),
 });
 
-export const { useSendNotificationMutation } = notificationAPI;
+export const {
+  useSendNotificationMutation,
+  useGetUserNotificationsQuery,
+  useDeleteUserNotificationMutation,
+} = notificationAPI;
 export default notificationAPI;
