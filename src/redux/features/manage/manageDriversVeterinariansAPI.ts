@@ -1,24 +1,5 @@
 import baseAPI from "@/redux/api/api";
 
-export interface TransportProviderApi {
-  id: number;
-  profile_pic: string | null;
-  name: string;
-  email: string;
-  phone: string | null;
-  location: string | null;
-  is_verified: boolean;
-  rider_status: string;
-  license: string | null;
-  license_expiry: string | null;
-  license_type: string | null;
-  year_of_experience: number;
-  vehicle_type: string | null;
-  vehicle_year: number | null;
-  average_rating: number;
-  total_reviews: number;
-}
-
 const manageDriversVeterinariansAPI = baseAPI.injectEndpoints({
   endpoints: (builder) => ({
     getAllDrivers: builder.query({

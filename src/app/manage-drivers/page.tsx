@@ -18,13 +18,13 @@ import {
 } from "lucide-react";
 import { useGetAllDriversQuery } from "@/redux/features/manage/manageDriversVeterinariansAPI";
 import {
-  TransportProviderApi,
   useAcceptUserMutation,
   useDeleteUserMutation,
   useRejectUserMutation,
   useResubmitUserMutation,
 } from "@/redux/features/manage/manageDriversVeterinariansAPI";
 import { toast } from "react-hot-toast";
+import { TransportProviderApi } from "@/redux/features/manage/manage.type";
 
 function mapApiDriverToDriver(item: TransportProviderApi): Driver {
   const status: Driver["status"] = !item.is_verified

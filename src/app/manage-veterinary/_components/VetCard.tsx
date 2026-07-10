@@ -5,33 +5,53 @@ import type { Vet } from "../data";
 interface VetCardProps {
   vet: Vet;
   onDelete: () => void;
-  onEdit?: () => void;
   onView: () => void;
 }
 
-export function VetCard({ vet, onDelete, onEdit, onView }: VetCardProps) {
+export function VetCard({ vet, onDelete, onView }: VetCardProps) {
   const getInitials = (name: string) => {
-    // Remove "Dr. " if exists
     const cleanName = name.replace("Dr. ", "").replace("Dr ", "");
-    const parts = cleanName.split(" ");
+    const parts = cleanName.trim().split(" ").filter(Boolean);
     if (parts.length >= 2) {
       return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
     }
     return cleanName.slice(0, 2).toUpperCase();
   };
 
+  const statusStyles: Record<Vet["status"], string> = {
+    Verified: "bg-green-50 text-green-600",
+    Pending: "bg-yellow-50 text-yellow-600",
+    Suspended: "bg-red-50 text-red-600",
+  };
+
   return (
     <div className='bg-[#FCFBF8] rounded-xl border border-[#F0EBE1] overflow-hidden flex flex-col transition-shadow hover:shadow-md'>
       {/* Header Info */}
-      <div className='p-6 flex flex-col items-center text-center pb-4'>
-        <div className='w-16 h-16 rounded-full bg-[#d08726] text-white flex items-center justify-center font-bold text-xl mb-3 shadow-sm'>
-          {getInitials(vet.name)}
-        </div>
+      <div className='p-6 flex flex-col items-center text-center pb-4 relative'>
+        <span
+          className={`absolute top-3 right-3 px-2 py-0.5 rounded-full text-[10px] font-medium ${statusStyles[vet.status]}`}
+        >
+          {vet.status}
+        </span>
+
+        {vet.profilePic ? (
+          <img
+            src={vet.profilePic}
+            alt={vet.name}
+            className='w-16 h-16 rounded-full object-cover mb-3 shadow-sm'
+          />
+        ) : (
+          <div className='w-16 h-16 rounded-full bg-[#d08726] text-white flex items-center justify-center font-bold text-xl mb-3 shadow-sm'>
+            {getInitials(vet.name)}
+          </div>
+        )}
         <h3 className='font-bold text-gray-900 text-lg leading-tight'>
           {vet.name}
         </h3>
         <p className='text-xs text-gray-500 mt-1'>
-          {vet.specialization.join(", ")}
+          {vet.specializations.length > 0
+            ? vet.specializations.join(", ")
+            : "General Practice"}
         </p>
       </div>
 
@@ -39,15 +59,15 @@ export function VetCard({ vet, onDelete, onEdit, onView }: VetCardProps) {
       <div className='flex border-y border-[#F0EBE1] bg-[#FAF8F3]'>
         <div className='flex-1 flex flex-col items-center justify-center py-3 border-r border-[#F0EBE1]'>
           <span className='text-[#d08726] font-bold text-lg leading-tight'>
-            {vet.patients}
+            {vet.totalReviews}
           </span>
           <span className='text-[10px] text-gray-500 font-medium uppercase tracking-wider mt-0.5'>
-            Patients
+            Reviews
           </span>
         </div>
         <div className='flex-1 flex flex-col items-center justify-center py-3 border-r border-[#F0EBE1]'>
           <span className='text-[#d08726] font-bold text-lg leading-tight'>
-            {vet.experienceYears} Years
+            {vet.yearsExperience} Years
           </span>
           <span className='text-[10px] text-gray-500 font-medium uppercase tracking-wider mt-0.5'>
             Experience
@@ -68,54 +88,60 @@ export function VetCard({ vet, onDelete, onEdit, onView }: VetCardProps) {
         <div>
           <h4 className='text-xs font-semibold text-gray-900 mb-1'>About</h4>
           <p className='text-xs text-gray-500 leading-relaxed line-clamp-3'>
-            {vet.about}
+            {vet.professionalBio || "No bio provided."}
           </p>
         </div>
 
         {/* Specialization Tags */}
-        <div>
-          <h4 className='text-xs font-semibold text-gray-900 mb-1.5'>
-            Specialization
-          </h4>
-          <div className='flex flex-wrap gap-1.5'>
-            {vet.specialization.map((spec, idx) => (
-              <span
-                key={idx}
-                className='px-2 py-0.5 rounded-full border border-green-300 text-[10px] text-green-700 bg-green-50/50'
-              >
-                {spec}
-              </span>
-            ))}
+        {vet.specializations.length > 0 && (
+          <div>
+            <h4 className='text-xs font-semibold text-gray-900 mb-1.5'>
+              Specialization
+            </h4>
+            <div className='flex flex-wrap gap-1.5'>
+              {vet.specializations.map((spec, idx) => (
+                <span
+                  key={idx}
+                  className='px-2 py-0.5 rounded-full border border-green-300 text-[10px] text-green-700 bg-green-50/50'
+                >
+                  {spec}
+                </span>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Certifications Tags */}
-        <div>
-          <h4 className='text-xs font-semibold text-gray-900 mb-1.5'>
-            Certifications
-          </h4>
-          <div className='flex flex-wrap gap-1.5'>
-            {vet.certifications.map((cert, idx) => (
-              <span
-                key={idx}
-                className='px-2 py-0.5 rounded-full border border-[#d08726]/40 text-[10px] text-[#d08726] bg-[#d08726]/5'
-              >
-                {cert}
-              </span>
-            ))}
+        {vet.certifications.length > 0 && (
+          <div>
+            <h4 className='text-xs font-semibold text-gray-900 mb-1.5'>
+              Certifications
+            </h4>
+            <div className='flex flex-wrap gap-1.5'>
+              {vet.certifications.map((cert, idx) => (
+                <span
+                  key={idx}
+                  className='px-2 py-0.5 rounded-full border border-[#d08726]/40 text-[10px] text-[#d08726] bg-[#d08726]/5'
+                >
+                  {cert}
+                </span>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Contact & Clinic */}
         <div className='border-t border-[#F0EBE1] pt-3 mt-auto space-y-2'>
           <div className='flex justify-between items-center text-xs'>
             <span className='text-gray-500'>Phone</span>
-            <span className='font-medium text-gray-900'>{vet.phone}</span>
+            <span className='font-medium text-gray-900'>
+              {vet.phone || "N/A"}
+            </span>
           </div>
           <div className='flex justify-between items-center text-xs'>
             <span className='text-gray-500'>Clinic</span>
-            <span className='font-medium text-gray-900 text-right'>
-              {vet.clinic}
+            <span className='font-medium text-gray-900 text-right truncate max-w-37.5'>
+              {vet.clinicName || "N/A"}
             </span>
           </div>
         </div>
