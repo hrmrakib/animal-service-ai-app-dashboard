@@ -40,9 +40,7 @@ export function Topbar({ title, subtitle, onMenuClick }: TopbarProps) {
         >
           <span className='sr-only'>View notifications</span>
           <Bell className='h-5 w-5' aria-hidden='true' />
-          <span className='absolute top-1 right-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white ring-2 ring-white'>
-            3
-          </span>
+          <span className='absolute -top-0.5 right-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white ring-2 ring-white'></span>
         </button>
 
         <div className='flex items-center gap-3'>
