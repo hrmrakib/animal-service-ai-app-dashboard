@@ -3,15 +3,15 @@
 import { useEffect, useRef, useState } from "react";
 import type Quill from "quill";
 
-import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import {
   useGetTermsAndConditionsQuery,
   useUpdateTermsAndConditionsMutation,
 } from "@/redux/features/settings/settingsAPI";
+import { showToast } from "@/lib/toast";
+import { formatPerfectDateTime } from "@/utils/formatPerfectDateTime";
 
 const EditTermsAndConditions = () => {
-  const router = useRouter();
   const editorRef = useRef<HTMLDivElement>(null);
   const quillRef = useRef<Quill | null>(null);
   const quillReadyRef = useRef(false);
@@ -22,6 +22,8 @@ const EditTermsAndConditions = () => {
     useUpdateTermsAndConditionsMutation();
 
   const existing = data?.data[0];
+
+  console.log(existing);
 
   // Step 1: Init Quill once on mount
   useEffect(() => {
@@ -51,32 +53,37 @@ const EditTermsAndConditions = () => {
 
   // Step 2: Once API data is ready AND Quill is ready, populate content
   useEffect(() => {
-    if (!existing?.content) return;
+    if (!existing?.description) return;
 
     // Poll until quillRef is ready (handles async init timing)
     const interval = setInterval(() => {
       if (quillRef.current) {
-        quillRef.current.root.innerHTML = existing.content;
-        setContent(existing.content);
+        quillRef.current.root.innerHTML = existing.description;
+        setContent(existing.description);
         clearInterval(interval);
       }
     }, 50);
 
     return () => clearInterval(interval);
-  }, [existing?.content]);
+  }, [existing?.description]);
 
   const handleSubmit = async () => {
     if (!existing) return;
+
+    if (existing?.description == content) {
+      showToast.error("Please, update terms and condition before save.");
+      return;
+    }
+
     try {
       const res = await updateTermsAndConditions({
         title: existing.title,
-        content,
+        description: content,
       }).unwrap();
 
-      if (!res.status) throw new Error(res.message);
-      if (res?.status) {
+      if (!res.success) throw new Error(res.message);
+      if (res?.success) {
         toast.success("Saved successfully!");
-        router.push("/dashboard/admin/settings/terms-and-conditions");
       }
     } catch {
       toast.error("Save failed.");
@@ -85,6 +92,10 @@ const EditTermsAndConditions = () => {
 
   return (
     <div className='min-h-[7vh] max-w-full mx-auto flex flex-col justify-between gap-6'>
+      <p className='w-full text-sm'>
+        <span className='font-semibold'>Last updated:</span>{" "}
+        {formatPerfectDateTime(existing?.created_at)}
+      </p>
       <div className='space-y-6'>
         <div className='h-auto border4 rounded-2xl'>
           <div
@@ -100,7 +111,7 @@ const EditTermsAndConditions = () => {
           <button
             onClick={handleSubmit}
             disabled={isUpdating}
-            className='min-w-full block px-4 py-3 bg-[#d08726] hover:bg-[#b8751d] text-white font-medium rounded-xl transition-colors disabled:opacity-70'
+            className='min-w-full block px-4 py-3 bg-[#d08726] hover:bg-[#b8751d] text-white font-medium rounded-xl transition-colors disabled:opacity-70 cursor-pointer disabled:cursor-not-allowed'
           >
             {isUpdating ? "Saving..." : "Save Changes"}
           </button>
