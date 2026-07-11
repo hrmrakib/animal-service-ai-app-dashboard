@@ -54,7 +54,10 @@ export function Topbar({ title, subtitle, onMenuClick }: TopbarProps) {
           <span className='hidden text-sm font-medium text-gray-700 sm:block'>
             {user?.name}
           </span>
-          <div className='h-10 w-10 overflow-hidden rounded-full bg-gray-200'>
+          <button
+            onClick={() => router.push("/settings/profile-info")}
+            className='h-10 w-10 overflow-hidden rounded-full bg-gray-200'
+          >
             {/* Fallback to generic avatar */}
             <div className='h-full w-full bg-pink-200 flex items-center justify-center text-pink-700 font-bold'>
               <Image
@@ -64,7 +67,7 @@ export function Topbar({ title, subtitle, onMenuClick }: TopbarProps) {
                 alt={user?.name ?? ""}
               />
             </div>
-          </div>
+          </button>
         </div>
       </div>
     </header>

@@ -1,61 +1,113 @@
 "use client";
 
-import { useState } from "react";
-import { Edit3, FilePlus } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import type Quill from "quill";
+
+import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
+import {
+  useGetTermsAndConditionsQuery,
+  useUpdateTermsAndConditionsMutation,
+} from "@/redux/features/settings/settingsAPI";
 
-export default function TermsAndPoliciesPage() {
-  const [content, setContent] = useState(
-    "By using our platform, you agree to comply with our terms and policies designed to ensure a safe and reliable experience for all users. We respect your privacy and are committed to protecting your personal information. Any data collected through our platform is used only to improve our services and provide a better user experience. Users are expected to use the platform responsibly and avoid any activities that may harm the system or other users. We reserve the right to update these terms and policies when necessary to maintain service quality and compliance with applicable regulations."
-  );
-  
-  const [isSaving, setIsSaving] = useState(false);
+const EditTermsAndConditions = () => {
+  const router = useRouter();
+  const editorRef = useRef<HTMLDivElement>(null);
+  const quillRef = useRef<Quill | null>(null);
+  const quillReadyRef = useRef(false);
+  const [content, setContent] = useState<string>("");
 
-  const handleSave = () => {
-    setIsSaving(true);
-    setTimeout(() => {
-      setIsSaving(false);
-      toast.success("Terms & Policies updated successfully!");
-    }, 1000);
+  const { data } = useGetTermsAndConditionsQuery({});
+  const [updateTermsAndConditions, { isLoading: isUpdating }] =
+    useUpdateTermsAndConditionsMutation();
+
+  const existing = data?.data[0];
+
+  // Step 1: Init Quill once on mount
+  useEffect(() => {
+    if (quillReadyRef.current || typeof window === "undefined") return;
+
+    const init = async () => {
+      const { default: Quill } = await import("quill");
+      await import("quill/dist/quill.snow.css");
+
+      if (editorRef.current && !editorRef.current.querySelector(".ql-editor")) {
+        const quill = new Quill(editorRef.current, {
+          theme: "snow",
+          placeholder: "Enter your terms and conditions...",
+        });
+
+        quillRef.current = quill;
+        quillReadyRef.current = true;
+
+        quill.on("text-change", () => {
+          setContent(quill.root.innerHTML);
+        });
+      }
+    };
+
+    init();
+  }, []);
+
+  // Step 2: Once API data is ready AND Quill is ready, populate content
+  useEffect(() => {
+    if (!existing?.content) return;
+
+    // Poll until quillRef is ready (handles async init timing)
+    const interval = setInterval(() => {
+      if (quillRef.current) {
+        quillRef.current.root.innerHTML = existing.content;
+        setContent(existing.content);
+        clearInterval(interval);
+      }
+    }, 50);
+
+    return () => clearInterval(interval);
+  }, [existing?.content]);
+
+  const handleSubmit = async () => {
+    if (!existing) return;
+    try {
+      const res = await updateTermsAndConditions({
+        title: existing.title,
+        content,
+      }).unwrap();
+
+      if (!res.status) throw new Error(res.message);
+      if (res?.status) {
+        toast.success("Saved successfully!");
+        router.push("/dashboard/admin/settings/terms-and-conditions");
+      }
+    } catch {
+      toast.error("Save failed.");
+    }
   };
 
   return (
-    <div className="w-full h-full flex flex-col">
-      <h2 className="text-lg font-semibold text-gray-900 mb-6 border-b pb-4">
-        Edit Terms & Policy
-      </h2>
-
-      <div className="flex-1 flex flex-col space-y-4">
-        <div className="relative flex-1 min-h-[300px] border border-gray-200 rounded-xl overflow-hidden bg-white focus-within:ring-2 focus-within:ring-brand focus-within:border-transparent transition-all">
-          <textarea
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            className="w-full h-full p-4 resize-none outline-none text-gray-600 text-sm leading-relaxed"
-            placeholder="Enter terms and policies content here..."
+    <div className='min-h-[7vh] max-w-full mx-auto flex flex-col justify-between gap-6'>
+      <div className='space-y-6'>
+        <div className='h-auto border4 rounded-2xl'>
+          <div
+            ref={editorRef}
+            className='min-h-[35vh] bg-white text-base'
+            id='quill-editor'
           />
-          
-          <div className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 cursor-pointer">
-            <Edit3 className="w-5 h-5" />
-          </div>
-          
-          <div className="absolute bottom-4 right-4">
-            <button className="p-2 bg-gray-50 border border-gray-200 rounded-lg hover:bg-gray-100 transition-colors text-gray-500 hover:text-gray-700">
-              <FilePlus className="w-5 h-5" />
-            </button>
-          </div>
         </div>
+      </div>
 
-        {/* Save Button */}
-        <div className="pt-2">
+      <div className='w-full'>
+        <div className='pt-2'>
           <button
-            onClick={handleSave}
-            disabled={isSaving}
-            className="w-full md:w-auto md:min-w-[300px] mx-auto block px-4 py-3 bg-[#d08726] hover:bg-[#b8751d] text-white font-medium rounded-xl transition-colors disabled:opacity-70"
+            onClick={handleSubmit}
+            disabled={isUpdating}
+            className='min-w-full block px-4 py-3 bg-[#d08726] hover:bg-[#b8751d] text-white font-medium rounded-xl transition-colors disabled:opacity-70'
           >
-            {isSaving ? "Saving..." : "Save Changes"}
+            {isUpdating ? "Saving..." : "Save Changes"}
           </button>
         </div>
       </div>
     </div>
   );
-}
+};
+
+export default EditTermsAndConditions;

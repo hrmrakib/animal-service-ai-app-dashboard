@@ -7,10 +7,10 @@ export default function SettingsLayout({
   children: React.ReactNode;
 }) {
   return (
-    <DashboardLayout title="Settings">
-      <div className="flex flex-col md:flex-row gap-6 p-4 md:p-6 w-full max-w-7xl mx-auto h-full items-start">
+    <DashboardLayout title='Settings'>
+      <div className='flex flex-col md:flex-row gap-6 p-4 md:p-6 w-full max-w-7xl mx-auto items-start'>
         <SettingsSidebar />
-        <div className="flex-1 w-full h-full bg-white rounded-xl border border-border-subtle p-6 md:min-h-[500px]">
+        <div className='flex-1 w-full h-fit bg-white rounded-xl border border-border-subtle p-6 min-h-125'>
           {children}
         </div>
       </div>

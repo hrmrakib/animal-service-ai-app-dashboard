@@ -16,10 +16,10 @@ export function SettingsSidebar() {
   const pathname = usePathname();
 
   return (
-    <nav className="flex w-full md:w-80 flex-col space-y-3 bg-white p-6 rounded-xl border border-border-subtle h-fit md:min-h-[500px]">
+    <nav className='flex w-full md:w-80 flex-col space-y-3 bg-white p-6 rounded-xl border border-border-subtle h-fit md:min-h-125'>
       {settingsNavItems.map((item) => {
         const isActive = pathname === item.href;
-        
+
         return (
           <Link
             key={item.name}
@@ -27,16 +27,18 @@ export function SettingsSidebar() {
             className={clsx(
               "group flex items-center justify-between rounded-full px-5 py-3.5 text-sm font-medium transition-colors border",
               isActive
-                ? "bg-[#f4ebe1] text-gray-900 border-[#eae0d5]" // Matching the exact beige highlight color from screenshot
-                : "bg-white text-gray-600 border-gray-200 hover:bg-gray-50"
+                ? "bg-[#f4ebe1] text-gray-900 border-[#eae0d5]"
+                : "bg-white text-gray-600 border-gray-200 hover:bg-gray-50",
             )}
           >
             <span>{item.name}</span>
-            <ArrowRight 
+            <ArrowRight
               className={clsx(
                 "h-4 w-4 shrink-0",
-                isActive ? "text-gray-900" : "text-gray-400 group-hover:text-gray-600"
-              )} 
+                isActive
+                  ? "text-gray-900"
+                  : "text-gray-400 group-hover:text-gray-600",
+              )}
             />
           </Link>
         );
