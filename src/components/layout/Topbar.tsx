@@ -1,6 +1,9 @@
 "use client";
 
+import { useAuth } from "@/hooks/useAuth";
+import { getImageUrl } from "@/utils/getImageURL";
 import { Bell, Menu } from "lucide-react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 
 interface TopbarProps {
@@ -11,6 +14,10 @@ interface TopbarProps {
 
 export function Topbar({ title, subtitle, onMenuClick }: TopbarProps) {
   const router = useRouter();
+
+  const { user } = useAuth();
+
+  console.log(user);
 
   return (
     <header className='sticky top-0 z-40 flex h-20 w-full items-center justify-between bg-bg-subtle px-4 sm:px-6 lg:px-8'>
@@ -45,12 +52,17 @@ export function Topbar({ title, subtitle, onMenuClick }: TopbarProps) {
 
         <div className='flex items-center gap-3'>
           <span className='hidden text-sm font-medium text-gray-700 sm:block'>
-            Aiden Max
+            {user?.name}
           </span>
           <div className='h-10 w-10 overflow-hidden rounded-full bg-gray-200'>
             {/* Fallback to generic avatar */}
             <div className='h-full w-full bg-pink-200 flex items-center justify-center text-pink-700 font-bold'>
-              AM
+              <Image
+                src={getImageUrl(user?.profile_pic)}
+                width={12}
+                height={12}
+                alt={user?.name ?? ""}
+              />
             </div>
           </div>
         </div>

@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { ToastProvider } from "@/components/ui/ToastProvider";
 import Providers from "@/redux/features/Providers";
+import AppInitializer from "@/components/AppInitializer/AppInitializer";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -23,8 +24,10 @@ export default function RootLayout({
     <html lang='en' className={`${inter.variable} h-full antialiased`}>
       <body className='h-full m-0 p-0 overflow-hidden'>
         <Providers>
-          {children}
-          <ToastProvider />
+          <AppInitializer>
+            {children}
+            <ToastProvider />
+          </AppInitializer>
         </Providers>
       </body>
     </html>

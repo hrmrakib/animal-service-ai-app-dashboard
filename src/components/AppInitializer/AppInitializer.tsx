@@ -3,8 +3,8 @@
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 
-import { useGetUserProfileQuery } from "@/redux/features/user/userAPI";
 import { setProfileLoading, setUser } from "@/redux/features/auth/authSlice";
+import { useGetProfileQuery } from "@/redux/features/settings/settingsAPI";
 
 export default function AppInitializer({
   children,
@@ -15,7 +15,7 @@ export default function AppInitializer({
   const token =
     typeof window !== "undefined" ? localStorage.getItem("access_token") : null;
 
-  const { data, isLoading } = useGetUserProfileQuery({}, { skip: !token });
+  const { data, isLoading } = useGetProfileQuery({}, { skip: !token });
 
   useEffect(() => {
     if (!token) {
@@ -28,7 +28,13 @@ export default function AppInitializer({
 
   useEffect(() => {
     if (data?.data) {
-      dispatch(setUser({ user: data.data, token: data.access_token || token }));
+      dispatch(
+        setUser({
+          user: data.data,
+          access: data.access_token || token,
+          refresh: data.refresh,
+        }),
+      );
     }
   }, [data, token, dispatch]);
 
