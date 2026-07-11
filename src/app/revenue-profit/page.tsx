@@ -5,50 +5,51 @@ import { StatCard } from "@/components/ui/StatCard";
 import { DonutChartPlaceholder } from "@/components/ui/DonutChartPlaceholder";
 import { Table } from "@/components/ui/Table";
 import { ProgressBar } from "@/components/ui/ProgressBar";
-import { Banknote, Users } from "lucide-react";
+import { Banknote, Loader, Users } from "lucide-react";
 import { useGetRevenueProfitQuery } from "@/redux/features/revenueProfit/revenueProfitAPI";
 
-const profitEntries = [
-  {
-    id: 1,
-    name: "Olivia Rhye",
-    username: "#12345",
-    category: "Livestock",
-    grossAmount: "SAR 45000",
-    rate: "15%",
-    netProfit: "SAR 450",
-  },
-  {
-    id: 2,
-    name: "Olivia Rhye",
-    username: "#12345",
-    category: "Product",
-    grossAmount: "SAR 45000",
-    rate: "15%",
-    netProfit: "SAR 450",
-  },
-  {
-    id: 3,
-    name: "Olivia Rhye",
-    username: "#12345",
-    category: "Transport",
-    grossAmount: "SAR 45000",
-    rate: "15%",
-    netProfit: "SAR 450",
-  },
-  {
-    id: 4,
-    name: "Olivia Rhye",
-    username: "#12345",
-    category: "Vet",
-    grossAmount: "SAR 45000",
-    rate: "15%",
-    netProfit: "SAR 450",
-  },
-];
+interface ProfitEntry {
+  user_name: string;
+  service: string;
+  gross_amount: number;
+  commission_percentage: number;
+  net_profit: number;
+  date: string;
+}
+
+const getInitials = (name: string) => {
+  const parts = name.trim().split(" ").filter(Boolean);
+  if (parts.length >= 2) {
+    return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
+  }
+  return name.slice(0, 2).toUpperCase();
+};
+
+const avatarColors: Record<string, string> = {
+  "Veterinary Appointment": "bg-blue-200 text-blue-700",
+  Transport: "bg-orange-200 text-orange-700",
+  "Product Order": "bg-green-200 text-green-700",
+  Auction: "bg-purple-200 text-purple-700",
+};
+
+const formatSAR = (n: number) =>
+  `SAR ${n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+
+const formatDate = (iso: string) =>
+  new Date(iso).toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
 
 export default function RevenueProfitPage() {
-  const { data } = useGetRevenueProfitQuery(undefined);
+  const { data, isFetching } = useGetRevenueProfitQuery(undefined);
+
+  const d = data?.data?.recent_profit_service;
+
+  const results = d?.results ?? [];
+
+  console.log(results);
 
   const product_orders_commission = data?.data?.product_orders_commission;
   const transport_commission = data?.data?.transport_commission;
@@ -57,8 +58,6 @@ export default function RevenueProfitPage() {
   const veterinary_bills_commission = data?.data?.veterinary_bills_commission;
   const auctions_commission = data?.data?.auctions_commission;
   const total_commission = data?.data?.total_commission;
-
-  console.log(product_orders_commission);
 
   return (
     <DashboardLayout title='Revenue & Profit'>
@@ -135,50 +134,69 @@ export default function RevenueProfitPage() {
               See All
             </button>
           </div>
-          <Table
-            data={profitEntries}
-            keyExtractor={(row) => row.id}
-            columns={[
-              {
-                header: "Source ID",
-                accessor: (row) => (
-                  <div className='flex items-center gap-3'>
-                    <div className='h-8 w-8 rounded-full bg-pink-200 overflow-hidden shrink-0 flex items-center justify-center text-pink-700 font-bold text-xs'>
-                      OR
+
+          {isFetching ? (
+            <div className='bg-white rounded-xl shadow-sm p-10 flex items-center justify-center gap-2 text-sm text-gray-400'>
+              <Loader className='h-4 w-4 animate-spin' />
+              Loading profit entries...
+            </div>
+          ) : results.length === 0 ? (
+            <div className='bg-white rounded-xl shadow-sm p-10 text-center text-sm text-gray-400'>
+              No recent profit entries.
+            </div>
+          ) : (
+            <Table
+              data={results}
+              keyExtractor={(row: ProfitEntry) =>
+                `${row.user_name}-${row.date}`
+              }
+              columns={[
+                {
+                  header: "User",
+                  accessor: (row) => (
+                    <div className='flex items-center gap-3'>
+                      <div
+                        className={`h-8 w-8 rounded-full overflow-hidden shrink-0 flex items-center justify-center font-bold text-xs ${
+                          avatarColors[row.service] ||
+                          "bg-pink-200 text-pink-700"
+                        }`}
+                      >
+                        {getInitials(row.user_name)}
+                      </div>
+                      <div className='flex flex-col'>
+                        <span className='font-medium text-gray-900'>
+                          {row.user_name}
+                        </span>
+                        <span className='text-xs text-gray-500'>
+                          {formatDate(row.date)}
+                        </span>
+                      </div>
                     </div>
-                    <div className='flex flex-col'>
-                      <span className='font-medium text-gray-900'>
-                        {row.name}
-                      </span>
-                      <span className='text-xs text-gray-500'>
-                        {row.username}
-                      </span>
-                    </div>
-                  </div>
-                ),
-              },
-              {
-                header: "Service Category",
-                accessor: "category",
-                className: "text-gray-500",
-              },
-              {
-                header: "Gross Amount",
-                accessor: "grossAmount",
-                className: "text-gray-500",
-              },
-              {
-                header: "Commissions Rate",
-                accessor: "rate",
-                className: "text-gray-500",
-              },
-              {
-                header: "Net Profit",
-                accessor: "netProfit",
-                className: "text-gray-500",
-              },
-            ]}
-          />
+                  ),
+                },
+                {
+                  header: "Service Category",
+                  accessor: (row) => row.service,
+                  className: "text-gray-500",
+                },
+                {
+                  header: "Gross Amount",
+                  accessor: (row) => formatSAR(row.gross_amount),
+                  className: "text-gray-500",
+                },
+                {
+                  header: "Commissions Rate",
+                  accessor: (row) => `${row.commission_percentage}%`,
+                  className: "text-gray-500",
+                },
+                {
+                  header: "Net Profit",
+                  accessor: (row) => formatSAR(row.net_profit),
+                  className: "text-gray-900 font-medium",
+                },
+              ]}
+            />
+          )}
         </div>
       </div>
     </DashboardLayout>
