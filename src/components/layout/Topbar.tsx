@@ -2,7 +2,6 @@
 
 import { useAuth } from "@/hooks/useAuth";
 import { Bell, Menu } from "lucide-react";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
 
 interface TopbarProps {
@@ -57,12 +56,15 @@ export function Topbar({ title, subtitle, onMenuClick }: TopbarProps) {
           >
             {/* Fallback to generic avatar */}
             <div className='h-full w-full bg-pink-200 flex items-center justify-center text-pink-700 font-bold'>
-              <Image
-                src={user?.profile_pic || "/images/placeholder.png"}
-                width={12}
-                height={12}
-                alt={user?.name ?? ""}
-              />
+              {user?.profile_pic ? (
+                <img
+                  src={user.profile_pic}
+                  alt={user.name}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                user?.name?.slice(0, 2).toUpperCase() || "U"
+              )}
             </div>
           </button>
         </div>
