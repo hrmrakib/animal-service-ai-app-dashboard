@@ -8,7 +8,6 @@ import {
   useGetProfileQuery,
   useUpdateProfileMutation,
 } from "@/redux/features/settings/settingsAPI";
-import { getImageUrl } from "@/utils/getImageURL";
 
 export default function ProfileInfoPage() {
   const [name, setName] = useState("");
@@ -56,7 +55,7 @@ export default function ProfileInfoPage() {
 
   const displayImage =
     previewUrl ||
-    getImageUrl(profile?.profile_pic) ||
+    profile?.profile_pic ||
     "https://ui-avatars.com/api/?name=User&background=f472b6&color=fff";
 
   return (
