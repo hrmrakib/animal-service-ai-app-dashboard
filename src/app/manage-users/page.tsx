@@ -4,11 +4,12 @@ import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { Table } from "@/components/ui/Table";
 import { Badge } from "@/components/ui/Badge";
 import { SearchInput } from "@/components/ui/SearchInput";
-import { Eye, Ban } from "lucide-react";
+import { Eye } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { useGetAllUsersQuery } from "@/redux/features/user/userAPI";
 import GlobalPagination from "@/components/pagination/GlobalPagination";
+import { UserProfileModal } from "@/components/ui/UserProfileModal";
 
 interface ApiUser {
   id: number;
@@ -34,6 +35,7 @@ function formatDate(dateStr: string) {
 }
 
 export default function ManageUsersPage() {
+  const [selectedUser, setSelectedUser] = useState<ApiUser | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [search, setSearch] = useState("");
   const limit = 8;
@@ -127,14 +129,13 @@ export default function ManageUsersPage() {
                   header: "Action",
                   accessor: (row) => (
                     <div className='flex items-center gap-3'>
-                      <Link
-                        href={`/manage-users/user-details?role=${row.role}&id=${row.id}`}
-                        className='text-gray-400 hover:text-gray-600 transition-colors'
+                      <button
+                        type='button'
+                        onClick={() => setSelectedUser(row)}
+                        className='text-gray-400 hover:text-brand transition-colors p-1 rounded hover:bg-gray-100'
+                        title='View User Details'
                       >
                         <Eye className='h-4 w-4' />
-                      </Link>
-                      <button className='text-gray-400 hover:text-red-600 transition-colors'>
-                        <Ban className='h-4 w-4' />
                       </button>
                     </div>
                   ),
@@ -150,6 +151,12 @@ export default function ManageUsersPage() {
           </>
         )}
       </div>
+
+      <UserProfileModal
+        isOpen={Boolean(selectedUser)}
+        onClose={() => setSelectedUser(null)}
+        user={selectedUser}
+      />
     </DashboardLayout>
   );
 }

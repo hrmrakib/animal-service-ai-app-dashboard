@@ -7,6 +7,8 @@ import { DonutChartPlaceholder } from "@/components/ui/DonutChartPlaceholder";
 import { Table } from "@/components/ui/Table";
 import { Badge } from "@/components/ui/Badge";
 import Link from "next/link";
+import { useState } from "react";
+import { UserProfileModal } from "@/components/ui/UserProfileModal";
 import {
   Banknote,
   Users,
@@ -14,7 +16,6 @@ import {
   ClipboardList,
   Clock,
   Eye,
-  Ban,
   Loader,
 } from "lucide-react";
 import {
@@ -66,6 +67,7 @@ function getInitials(name?: string, email?: string) {
 }
 
 export default function Home() {
+  const [selectedUser, setSelectedUser] = useState<ApiUser | null>(null);
   const { data } = useGetOverviewQuery(undefined);
   const { data: percentageData } = useGetPercentageQuery(undefined);
   const {
@@ -234,14 +236,13 @@ export default function Home() {
                   header: "Action",
                   accessor: (row) => (
                     <div className='flex items-center gap-3'>
-                      <Link
-                        href={`/manage-users/user-details?role=${row.role}&id=${row.id}`}
-                        className='text-gray-400 hover:text-gray-600 transition-colors'
+                      <button
+                        type='button'
+                        onClick={() => setSelectedUser(row)}
+                        className='text-gray-400 hover:text-brand transition-colors p-1 rounded hover:bg-gray-100'
+                        title='View User Details'
                       >
                         <Eye className='h-4 w-4' />
-                      </Link>
-                      <button className='text-gray-400 hover:text-red-600 transition-colors'>
-                        <Ban className='h-4 w-4' />
                       </button>
                     </div>
                   ),
@@ -251,6 +252,12 @@ export default function Home() {
           )}
         </div>
       </div>
+
+      <UserProfileModal
+        isOpen={Boolean(selectedUser)}
+        onClose={() => setSelectedUser(null)}
+        user={selectedUser}
+      />
     </DashboardLayout>
   );
 }
