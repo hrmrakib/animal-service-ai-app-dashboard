@@ -89,30 +89,30 @@ export default function Home() {
         <div className='grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5'>
           <StatCard
             title='Total Revenue'
-            value='SAR 725'
+            value={`SAR ${percentageData?.data?.summary?.total_revenue || 0}`}
             icon={<Banknote className='h-6 w-6 text-brand' />}
           />
           <StatCard
             title='Total Users'
-            value='5180'
+            value={percentageData?.data?.summary?.total_users || 0}
             icon={<Users className='h-6 w-6 text-blue-500' />}
             iconBgColor='bg-blue-50'
           />
           <StatCard
             title='Total Auctions'
-            value='50'
+            value={percentageData?.data?.summary?.total_auctions || 0}
             icon={<Gavel className='h-6 w-6 text-green-500' />}
             iconBgColor='bg-green-50'
           />
           <StatCard
             title='Active Order'
-            value='525'
+            value={percentageData?.data?.summary?.active_orders || 0}
             icon={<ClipboardList className='h-6 w-6 text-blue-500' />}
             iconBgColor='bg-blue-50'
           />
           <StatCard
             title='Pending Order'
-            value='75'
+            value={percentageData?.data?.summary?.pending_orders || 0}
             icon={<Clock className='h-6 w-6 text-red-500' />}
             iconBgColor='bg-red-50'
           />
