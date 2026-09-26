@@ -6,6 +6,7 @@ import { AreaChartPlaceholder } from "@/components/ui/AreaChartPlaceholder";
 import { DonutChartPlaceholder } from "@/components/ui/DonutChartPlaceholder";
 import { Table } from "@/components/ui/Table";
 import { Badge } from "@/components/ui/Badge";
+import Link from "next/link";
 import {
   Banknote,
   Users,
@@ -14,68 +15,73 @@ import {
   Clock,
   Eye,
   Ban,
+  Loader,
 } from "lucide-react";
 import {
   useGetOverviewQuery,
   useGetPercentageQuery,
 } from "@/redux/features/overview/overviewAPI";
+import { useGetAllUsersQuery } from "@/redux/features/user/userAPI";
 
-const recentUsers = [
-  {
-    id: 1,
-    name: "Olivia Rhye",
-    username: "#12345",
-    email: "Olivia123@gmail.com",
-    phone: "0175589484",
-    role: "Job Seeker",
-    date: "19 March, 2026",
-    status: "Active" as const,
-  },
-  {
-    id: 2,
-    name: "Olivia Rhye",
-    username: "#12345",
-    email: "Olivia123@gmail.com",
-    phone: "0175589484",
-    role: "Job Seeker",
-    date: "19 March, 2026",
-    status: "Suspended" as const,
-  },
-  {
-    id: 3,
-    name: "Olivia Rhye",
-    username: "#12345",
-    email: "Olivia123@gmail.com",
-    phone: "0175589484",
-    role: "Job Seeker",
-    date: "19 March, 2026",
-    status: "Active" as const,
-  },
-  {
-    id: 4,
-    name: "Olivia Rhye",
-    username: "#12345",
-    email: "Olivia123@gmail.com",
-    phone: "0175589484",
-    role: "Job Seeker",
-    date: "19 March, 2026",
-    status: "Active" as const,
-  },
-  {
-    id: 5,
-    name: "Olivia Rhye",
-    username: "#12345",
-    email: "Olivia123@gmail.com",
-    phone: "0175589484",
-    role: "Job Seeker",
-    date: "19 March, 2026",
-    status: "Active" as const,
-  },
-];
+interface ApiUser {
+  id: number;
+  name: string;
+  email: string;
+  phone: string | null;
+  role: string;
+  is_verified: boolean;
+  is_suspended: boolean;
+  created_at: string;
+}
+
+function formatRole(role: string) {
+  if (!role) return "—";
+  return role.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
+function formatDate(dateStr: string) {
+  if (!dateStr) return "—";
+  const normalized = dateStr.includes("T") ? dateStr : dateStr.replace(" ", "T");
+  const date = new Date(normalized);
+  if (isNaN(date.getTime())) return dateStr;
+  return date.toLocaleDateString("en-US", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+}
+
+function getInitials(name?: string, email?: string) {
+  if (name && name.trim()) {
+    const parts = name.trim().split(" ").filter(Boolean);
+    if (parts.length >= 2) {
+      return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
+    }
+    return name.slice(0, 2).toUpperCase();
+  }
+  if (email) {
+    return email.slice(0, 2).toUpperCase();
+  }
+  return "U";
+}
 
 export default function Home() {
   const { data } = useGetOverviewQuery(undefined);
   const { data: percentageData } = useGetPercentageQuery(undefined);
+  const {
+    data: usersData,
+    isLoading: isUsersLoading,
+    isError: isUsersError,
+  } = useGetAllUsersQuery({
+    page: 1,
+    limit: 10,
+  });
+
+  const users: ApiUser[] = (
+    usersData?.results ??
+    usersData?.data?.results ??
+    []
+  ).slice(0, 10);
 
   const overview = data?.data ?? data ?? percentageData?.data ?? percentageData;
   const summary = overview?.summary;
@@ -150,68 +156,99 @@ export default function Home() {
             <h2 className='text-lg font-semibold text-gray-900'>
               Recent Users
             </h2>
+            <Link
+              href='/manage-users'
+              className='text-sm font-medium text-brand hover:underline'
+            >
+              See All
+            </Link>
           </div>
-          <Table
-            data={recentUsers}
-            keyExtractor={(row) => row.id}
-            columns={[
-              {
-                header: "Users",
-                accessor: (row) => (
-                  <div className='flex items-center gap-3'>
-                    <input
-                      type='checkbox'
-                      className='rounded border-gray-300 text-brand focus:ring-brand'
-                    />
-                    <div className='h-8 w-8 rounded-full bg-pink-200 overflow-hidden shrink-0 flex items-center justify-center text-pink-700 font-bold text-xs'>
-                      OR
+
+          {isUsersLoading ? (
+            <div className='bg-white rounded-xl shadow-sm p-10 flex items-center justify-center gap-2 text-sm text-gray-400'>
+              <Loader className='h-4 w-4 animate-spin text-brand' />
+              Loading recent users...
+            </div>
+          ) : isUsersError ? (
+            <div className='bg-white rounded-xl shadow-sm p-10 text-center text-sm text-red-500'>
+              Failed to load recent users.
+            </div>
+          ) : users.length === 0 ? (
+            <div className='bg-white rounded-xl shadow-sm p-10 text-center text-sm text-gray-400'>
+              No recent users found.
+            </div>
+          ) : (
+            <Table
+              data={users}
+              keyExtractor={(row) => row.id}
+              columns={[
+                {
+                  header: "Users",
+                  accessor: (row) => (
+                    <div className='flex items-center gap-3'>
+                      <input
+                        type='checkbox'
+                        className='rounded border-gray-300 text-brand focus:ring-brand'
+                      />
+                      <div className='h-8 w-8 rounded-full bg-pink-200 overflow-hidden shrink-0 flex items-center justify-center text-pink-700 font-bold text-xs'>
+                        {getInitials(row.name, row.email)}
+                      </div>
+                      <div className='flex flex-col'>
+                        <span className='font-medium text-gray-900'>
+                          {row.name || "—"}
+                        </span>
+                        <span className='text-xs text-gray-500'>
+                          #{row.id}
+                        </span>
+                      </div>
                     </div>
-                    <div className='flex flex-col'>
-                      <span className='font-medium text-gray-900'>
-                        {row.name}
-                      </span>
-                      <span className='text-xs text-gray-500'>
-                        {row.username}
-                      </span>
+                  ),
+                },
+                {
+                  header: "Gmail",
+                  accessor: (row) => row.email || "—",
+                  className: "text-gray-500",
+                },
+                {
+                  header: "Phone",
+                  accessor: (row) => row.phone || "—",
+                  className: "text-gray-500",
+                },
+                {
+                  header: "Role",
+                  accessor: (row) => formatRole(row.role),
+                  className: "text-gray-500",
+                },
+                {
+                  header: "Joining Date",
+                  accessor: (row) => formatDate(row.created_at),
+                  className: "text-gray-500",
+                },
+                {
+                  header: "Status",
+                  accessor: (row) => (
+                    <Badge status={row.is_suspended ? "Suspended" : "Active"} />
+                  ),
+                },
+                {
+                  header: "Action",
+                  accessor: (row) => (
+                    <div className='flex items-center gap-3'>
+                      <Link
+                        href={`/manage-users/user-details?role=${row.role}&id=${row.id}`}
+                        className='text-gray-400 hover:text-gray-600 transition-colors'
+                      >
+                        <Eye className='h-4 w-4' />
+                      </Link>
+                      <button className='text-gray-400 hover:text-red-600 transition-colors'>
+                        <Ban className='h-4 w-4' />
+                      </button>
                     </div>
-                  </div>
-                ),
-              },
-              {
-                header: "Gmail",
-                accessor: "email",
-                className: "text-gray-500",
-              },
-              {
-                header: "Phone",
-                accessor: "phone",
-                className: "text-gray-500",
-              },
-              { header: "Role", accessor: "role", className: "text-gray-500" },
-              {
-                header: "Joining Date",
-                accessor: "date",
-                className: "text-gray-500",
-              },
-              {
-                header: "Status",
-                accessor: (row) => <Badge status={row.status} />,
-              },
-              {
-                header: "Action",
-                accessor: () => (
-                  <div className='flex items-center gap-3'>
-                    <button className='text-gray-400 hover:text-gray-600'>
-                      <Eye className='h-4 w-4' />
-                    </button>
-                    <button className='text-gray-400 hover:text-red-600'>
-                      <Ban className='h-4 w-4' />
-                    </button>
-                  </div>
-                ),
-              },
-            ]}
-          />
+                  ),
+                },
+              ]}
+            />
+          )}
         </div>
       </div>
     </DashboardLayout>
