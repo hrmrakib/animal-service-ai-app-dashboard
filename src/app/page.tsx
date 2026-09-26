@@ -107,7 +107,7 @@ export default function Home() {
       subtitle='Real-time monetization and user acquisition insights'
     >
       <div className='flex flex-col gap-6'>
-        {/* Stat Cards Grid */}
+
         <div className='grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5'>
           <StatCard
             title='Total Revenue'
