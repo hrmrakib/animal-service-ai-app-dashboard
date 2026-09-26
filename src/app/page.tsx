@@ -77,7 +77,21 @@ export default function Home() {
   const { data } = useGetOverviewQuery(undefined);
   const { data: percentageData } = useGetPercentageQuery(undefined);
 
-  console.log(percentageData);
+  const overview = data?.data ?? data ?? percentageData?.data ?? percentageData;
+  const summary = overview?.summary;
+
+  const totalRevenue =
+    summary?.total_revenue !== undefined && summary?.total_revenue !== null
+      ? `SAR ${Number(summary.total_revenue).toLocaleString(undefined, {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        })}`
+      : "SAR 0";
+
+  const totalUsers = summary?.total_users ?? 0;
+  const totalAuctions = summary?.total_auctions ?? 0;
+  const activeOrders = summary?.active_orders ?? 0;
+  const pendingOrders = summary?.pending_orders ?? 0;
 
   return (
     <DashboardLayout
@@ -89,30 +103,30 @@ export default function Home() {
         <div className='grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5'>
           <StatCard
             title='Total Revenue'
-            value={`SAR ${percentageData?.data?.summary?.total_revenue || 0}`}
+            value={totalRevenue}
             icon={<Banknote className='h-6 w-6 text-brand' />}
           />
           <StatCard
             title='Total Users'
-            value={percentageData?.data?.summary?.total_users || 0}
+            value={totalUsers}
             icon={<Users className='h-6 w-6 text-blue-500' />}
             iconBgColor='bg-blue-50'
           />
           <StatCard
             title='Total Auctions'
-            value={percentageData?.data?.summary?.total_auctions || 0}
+            value={totalAuctions}
             icon={<Gavel className='h-6 w-6 text-green-500' />}
             iconBgColor='bg-green-50'
           />
           <StatCard
             title='Active Order'
-            value={percentageData?.data?.summary?.active_orders || 0}
+            value={activeOrders}
             icon={<ClipboardList className='h-6 w-6 text-blue-500' />}
             iconBgColor='bg-blue-50'
           />
           <StatCard
             title='Pending Order'
-            value={percentageData?.data?.summary?.pending_orders || 0}
+            value={pendingOrders}
             icon={<Clock className='h-6 w-6 text-red-500' />}
             iconBgColor='bg-red-50'
           />
@@ -121,10 +135,12 @@ export default function Home() {
         {/* Charts Row */}
         <div className='grid grid-cols-1 gap-6 lg:grid-cols-3'>
           <div className='lg:col-span-2 min-h-100'>
-            <AreaChartPlaceholder data={data} />
+            <AreaChartPlaceholder data={overview} />
           </div>
           <div className='min-h-100'>
-            <DonutChartPlaceholder percentageData={percentageData} />
+            <DonutChartPlaceholder
+              percentageData={percentageData?.data ?? percentageData}
+            />
           </div>
         </div>
 
