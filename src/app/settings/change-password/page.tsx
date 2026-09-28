@@ -38,11 +38,12 @@ export default function ChangePasswordPage() {
       setNewPassword("");
       setConfirmPassword("");
       toast.success("Password updated successfully!");
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const error = err as { data?: { message?: string; old_password?: string[]; new_password?: string[] } };
       toast.error(
-        err?.data?.message ||
-          err?.data?.old_password?.[0] ||
-          err?.data?.new_password?.[0] ||
+        error?.data?.message ||
+          error?.data?.old_password?.[0] ||
+          error?.data?.new_password?.[0] ||
           "Failed to update password",
       );
     }

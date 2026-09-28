@@ -4,8 +4,10 @@ import { ToastCard } from "@/components/ui/ToastCard";
 import { showToast } from "@/lib/toast";
 
 export default function DemoPage() {
-  const saveSettings = (settings: unknown) =>
-    new Promise((resolve) => setTimeout(resolve, 1500));
+  const saveSettings = (_settings: unknown) => {
+    void _settings;
+    return new Promise((resolve) => setTimeout(resolve, 1500));
+  };
 
   return (
     <div className='flex flex-col gap-3 p-6'>

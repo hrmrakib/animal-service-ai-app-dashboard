@@ -1,4 +1,5 @@
 import React from "react";
+import Image from "next/image";
 import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
 import { FileText, Plus, MapPin, Mail, Phone } from "lucide-react";
@@ -41,10 +42,13 @@ export function VetProfileModal({
           {/* Header */}
           <div className='flex items-center gap-6 mb-8'>
             {vet.profilePic ? (
-              <img
+              <Image
                 src={vet.profilePic}
                 alt={vet.name}
+                width={112}
+                height={112}
                 className='w-28 h-28 rounded-full border-4 border-[#F0EBE1] object-cover shrink-0'
+                unoptimized
               />
             ) : (
               <div className='w-28 h-28 rounded-full border-4 border-[#F0EBE1] flex items-center justify-center bg-[#d08726] text-white text-3xl font-bold shrink-0'>

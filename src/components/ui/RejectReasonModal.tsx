@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
 
@@ -19,9 +19,10 @@ export function RejectReasonModal({
 }: RejectReasonModalProps) {
   const [reason, setReason] = useState("");
 
-  useEffect(() => {
-    if (!isOpen) setReason("");
-  }, [isOpen]);
+  const handleClose = () => {
+    setReason("");
+    onClose();
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -32,7 +33,7 @@ export function RejectReasonModal({
   return (
     <Modal
       isOpen={isOpen}
-      onClose={onClose}
+      onClose={handleClose}
       className='max-w-md'
       hideCloseButton
     >

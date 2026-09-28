@@ -1,4 +1,5 @@
 import React from "react";
+import Image from "next/image";
 import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
 import {
@@ -53,10 +54,13 @@ export function SellerProfileModal({
           <div className='flex items-center gap-5'>
             <div className='relative'>
               {seller.profilePic ? (
-                <img
+                <Image
                   src={seller.profilePic}
                   alt={seller.name}
+                  width={80}
+                  height={80}
                   className='w-20 h-20 rounded-full object-cover border-4 border-white'
+                  unoptimized
                 />
               ) : (
                 <div className='w-20 h-20 rounded-full bg-white text-[#d08726] border-4 border-white flex items-center justify-center text-2xl font-bold'>

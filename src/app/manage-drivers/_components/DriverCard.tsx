@@ -1,7 +1,39 @@
 import React from "react";
+import Image from "next/image";
 import { Star, MapPin, Trash2, Eye, Mail } from "lucide-react";
 import clsx from "clsx";
 import type { Driver } from "../data";
+
+function DriverAvatar({ driver, size }: { driver: Driver; size: "sm" | "lg" }) {
+  const getInitials = (name: string) => {
+    const parts = name.trim().split(" ").filter(Boolean);
+    if (parts.length >= 2) {
+      return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
+    }
+    return name.slice(0, 2).toUpperCase();
+  };
+
+  const dims = size === "sm" ? "w-12 h-12 text-lg" : "w-12 h-12 text-lg";
+  return driver.profilePic ? (
+    <Image
+      src={driver.profilePic}
+      alt={driver.name}
+      width={48}
+      height={48}
+      className={clsx(dims, "rounded-full object-cover")}
+      unoptimized
+    />
+  ) : (
+    <div
+      className={clsx(
+        dims,
+        "rounded-full bg-[#d08726] text-white flex items-center justify-center font-bold",
+      )}
+    >
+      {getInitials(driver.name)}
+    </div>
+  );
+}
 
 interface DriverCardProps {
   driver: Driver;
@@ -35,40 +67,12 @@ export function DriverCard({
     }
   };
 
-  const getInitials = (name: string) => {
-    const parts = name.trim().split(" ").filter(Boolean);
-    if (parts.length >= 2) {
-      return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
-    }
-    return name.slice(0, 2).toUpperCase();
-  };
-
-  const Avatar = ({ size }: { size: "sm" | "lg" }) => {
-    const dims = size === "sm" ? "w-12 h-12 text-lg" : "w-12 h-12 text-lg";
-    return driver.profilePic ? (
-      <img
-        src={driver.profilePic}
-        alt={driver.name}
-        className={clsx(dims, "rounded-full object-cover")}
-      />
-    ) : (
-      <div
-        className={clsx(
-          dims,
-          "rounded-full bg-[#d08726] text-white flex items-center justify-center font-bold",
-        )}
-      >
-        {getInitials(driver.name)}
-      </div>
-    );
-  };
-
   if (viewMode === "list") {
     return (
       <div className='bg-white rounded-xl border border-gray-100 p-4 shadow-sm flex items-center justify-between gap-4 transition-shadow hover:shadow-md'>
         <div className='flex items-center gap-4 w-1/4'>
           <div className='relative shrink-0'>
-            <Avatar size='sm' />
+            <DriverAvatar driver={driver} size='sm' />
             {driver.status !== "Offline" && (
               <div className='absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full'></div>
             )}
@@ -149,7 +153,7 @@ export function DriverCard({
       <div className='flex items-start justify-between'>
         <div className='flex items-center gap-3'>
           <div className='relative'>
-            <Avatar size='lg' />
+            <DriverAvatar driver={driver} size='lg' />
             {driver.status !== "Offline" && (
               <div className='absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full'></div>
             )}

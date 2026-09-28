@@ -46,7 +46,7 @@ export function DeleteDriverModal({
         <div className='bg-red-50 border border-red-100 rounded-lg p-4'>
           <p className='text-gray-800 font-medium mb-3'>
             Are you sure you want to delete{" "}
-            <span className='font-bold'>{driver.name}</span>'s account?
+            <span className='font-bold'>{driver.name}</span>&apos;s account?
           </p>
           <p className='text-sm text-gray-600 mb-2'>
             This will permanently remove:

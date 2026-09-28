@@ -28,6 +28,21 @@ export interface UserDetail {
   created_at: string;
 }
 
+interface UserProfileApiData {
+  rider_details?: {
+    id?: number | string;
+    name?: string;
+    email?: string;
+    phone?: string;
+    role?: string;
+    is_verified?: boolean;
+  };
+  total_earnings_amount?: number;
+  completed_rides_count?: number;
+  pending_rides_count?: number;
+  total_orders?: number;
+}
+
 interface UserProfileModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -70,7 +85,7 @@ export function UserProfileModal({
   onClose,
   user,
 }: UserProfileModalProps) {
-  const { data: detailsData, isLoading } = useGetUserDetailsQuery(
+  const { data: detailsData } = useGetUserDetailsQuery(
     {
       role: user?.role || "",
       id: user?.id ? String(user.id) : "",
@@ -82,7 +97,7 @@ export function UserProfileModal({
 
   if (!user) return null;
 
-  const apiData = (detailsData as any)?.data || {};
+  const apiData = ((detailsData as unknown as { data?: UserProfileApiData })?.data) || {};
   const userDetails = apiData.rider_details || {};
   const effectiveName = userDetails.name || user.name || "Unnamed User";
   const effectiveEmail = userDetails.email || user.email || "—";

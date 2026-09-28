@@ -6,7 +6,7 @@ import { UserHeader } from "@/components/ui/UserHeader";
 import { StatCard } from "@/components/ui/StatCard";
 import { Table } from "@/components/ui/Table";
 import { SearchInput } from "@/components/ui/SearchInput";
-import { Pagination } from "@/components/ui/Pagination";
+
 import {
   ArrowLeft,
   Banknote,
@@ -32,6 +32,27 @@ interface TripRecord {
   status: string;
 }
 
+interface UserApiData {
+  rider_details?: {
+    id?: number | string;
+    name?: string;
+    email?: string;
+    phone?: string;
+    role?: string;
+    is_verified?: boolean;
+  };
+  recent_list?: {
+    results?: TripRecord[];
+    total_pages?: number;
+  };
+  total_earnings_amount?: number;
+  platform_commission?: number;
+  completed_rides_count?: number;
+  pending_rides_count?: number;
+  cancelled_rides_count?: number;
+  total_orders?: number;
+}
+
 export default function UserDetailPage({
   params,
 }: {
@@ -54,9 +75,8 @@ export default function UserDetailPage({
     search: debounceSearch,
   });
 
-  // 2. Cast `data` to `any` temporarily to bypass the 'never' error,
-  // then explicitly type the extracted lists
-  const apiData = (data as any)?.data || {};
+  // 2. Explicitly type the extracted lists
+  const apiData = ((data as unknown as { data?: UserApiData })?.data) || {};
   const userDetails = apiData.rider_details || {};
   const recentList: TripRecord[] = apiData.recent_list?.results || [];
   const totalPages = apiData.recent_list?.total_pages || 1;

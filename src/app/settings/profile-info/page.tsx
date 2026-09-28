@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Image from "next/image";
 import { Upload } from "lucide-react";
 import toast from "react-hot-toast";
@@ -23,11 +23,11 @@ export default function ProfileInfoPage() {
   console.log(profile);
 
   // Sync form state once profile loads
-  useEffect(() => {
-    if (profile) {
-      setName(profile.name || "");
-    }
-  }, [profile]);
+  const [nameInitialized, setNameInitialized] = useState(false);
+  if (profile && !nameInitialized) {
+    setName(profile.name || "");
+    setNameInitialized(true);
+  }
 
   console.log(name);
 
@@ -48,8 +48,9 @@ export default function ProfileInfoPage() {
 
       await updateProfileMutation(formData).unwrap();
       toast.success("Profile updated successfully!");
-    } catch (err: any) {
-      toast.error(err?.data?.message || "Failed to update profile");
+    } catch (err: unknown) {
+      const error = err as { data?: { message?: string } };
+      toast.error(error?.data?.message || "Failed to update profile");
     }
   };
 

@@ -19,7 +19,7 @@ type RevenueAnalyticsData = {
   yearly_analytics: YearlyPoint[];
 };
 
-function CustomTooltip({ active, payload, label }: any) {
+function CustomTooltip({ active, payload, label }: { active?: boolean; payload?: Array<{ value: number }>; label?: string }) {
   if (!active || !payload?.length) return null;
   const value = payload[0].value as number;
   return (

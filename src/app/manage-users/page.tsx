@@ -5,7 +5,7 @@ import { Table } from "@/components/ui/Table";
 import { Badge } from "@/components/ui/Badge";
 import { SearchInput } from "@/components/ui/SearchInput";
 import { Eye } from "lucide-react";
-import Link from "next/link";
+
 import { useState } from "react";
 import { useGetAllUsersQuery } from "@/redux/features/user/userAPI";
 import GlobalPagination from "@/components/pagination/GlobalPagination";

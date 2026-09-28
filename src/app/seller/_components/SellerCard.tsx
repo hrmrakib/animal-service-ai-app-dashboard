@@ -1,4 +1,5 @@
 import React from "react";
+import Image from "next/image";
 import { Trash2, Eye, MapPin, Star } from "lucide-react";
 import type { Seller } from "../data";
 
@@ -29,10 +30,13 @@ export function SellerCard({ seller, onDelete, onView }: SellerCardProps) {
       <div className='flex items-start justify-between'>
         <div className='flex items-center gap-3'>
           {seller.profilePic ? (
-            <img
+            <Image
               src={seller.profilePic}
               alt={seller.name}
+              width={48}
+              height={48}
               className='w-12 h-12 rounded-full object-cover'
+              unoptimized
             />
           ) : (
             <div className='w-12 h-12 rounded-full bg-[#d08726] text-white flex items-center justify-center font-bold text-lg'>

@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/Button";
 import { ArrowLeft, ChevronDown, Send } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useSendNotificationMutation } from "@/redux/features/notification/notificationAPI";
-import { showToast } from "@/lib/toast";
+
 
 export default function CreateNotificationPage() {
   const router = useRouter();
@@ -45,11 +45,11 @@ export default function CreateNotificationPage() {
     if (!allTitle.trim() || !allBody.trim()) return;
 
     try {
-      const result = await sendNotificationMutation({
+      await sendNotificationMutation({
         title: allTitle,
         message: allBody,
       });
-    } catch (error) {
+    } catch {
       // showToast.error(error)
     }
 

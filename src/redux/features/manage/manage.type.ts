@@ -42,7 +42,7 @@ export interface VeterinarianApi {
   appointment_booking_fee: string;
   average_rating: number;
   total_reviews: number;
-  reviews_list: any[];
+  reviews_list: unknown[];
 }
 
 export interface SellerApi {
@@ -66,7 +66,7 @@ export interface SellerApi {
   business_longitude: string | null;
   average_rating: number;
   total_reviews: number;
-  reviews_list: any[];
+  reviews_list: unknown[];
   // is_verified isn't in this sample response, but keep optional in case backend adds it
   is_verified?: boolean;
 }

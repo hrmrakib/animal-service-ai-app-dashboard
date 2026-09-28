@@ -1,4 +1,5 @@
 import React from "react";
+import Image from "next/image";
 import { Trash2, Eye } from "lucide-react";
 import type { Vet } from "../data";
 
@@ -35,10 +36,13 @@ export function VetCard({ vet, onDelete, onView }: VetCardProps) {
         </span>
 
         {vet.profilePic ? (
-          <img
+          <Image
             src={vet.profilePic}
             alt={vet.name}
+            width={64}
+            height={64}
             className='w-16 h-16 rounded-full object-cover mb-3 shadow-sm'
+            unoptimized
           />
         ) : (
           <div className='w-16 h-16 rounded-full bg-[#d08726] text-white flex items-center justify-center font-bold text-xl mb-3 shadow-sm'>
