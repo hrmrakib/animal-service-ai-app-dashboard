@@ -14,6 +14,7 @@ import {
   useAcceptProductMutation,
   useRejectProductMutation,
   useGetUnverifiedAuctionsQuery,
+  useGetAllAuctionsQuery,
   useAcceptAuctionMutation,
   useRejectAuctionMutation,
 } from "@/redux/features/approval/approvalAPI";
@@ -33,6 +34,7 @@ import {
   RefreshCw,
   Layers,
   AlertCircle,
+  ListFilter,
 } from "lucide-react";
 import { toast } from "react-hot-toast";
 
@@ -45,6 +47,7 @@ const PRODUCT_PRESET_REASONS = [
 ];
 
 const AUCTION_PRESET_REASONS = [
+  "Starting bid is too low or images are not clear.",
   "Auction terms or starting bid invalid.",
   "Starting bid does not reflect realistic market value.",
   "Auction timeframe or bidding rules not compliant.",
@@ -54,6 +57,7 @@ const AUCTION_PRESET_REASONS = [
 
 export default function ListingApprovalsPage() {
   const [activeTab, setActiveTab] = useState<"products" | "auctions">("products");
+  const [auctionViewFilter, setAuctionViewFilter] = useState<"pending" | "all">("pending");
   const [search, setSearch] = useState("");
 
   // Product Modals State
@@ -82,7 +86,7 @@ export default function ListingApprovalsPage() {
   const [rejectProduct, { isLoading: isRejectingProduct }] =
     useRejectProductMutation();
 
-  // Auctions RTK Query
+  // Auctions RTK Query (Pending)
   const {
     data: auctionsData,
     isLoading: isAuctionsLoading,
@@ -90,6 +94,15 @@ export default function ListingApprovalsPage() {
     isError: isAuctionsError,
     refetch: refetchAuctions,
   } = useGetUnverifiedAuctionsQuery();
+
+  // Auctions RTK Query (All: Verified & Unverified)
+  const {
+    data: allAuctionsData,
+    isLoading: isAllAuctionsLoading,
+    isFetching: isAllAuctionsFetching,
+    isError: isAllAuctionsError,
+    refetch: refetchAllAuctions,
+  } = useGetAllAuctionsQuery();
 
   const [acceptAuction, { isLoading: isAcceptingAuction }] =
     useAcceptAuctionMutation();
@@ -100,10 +113,37 @@ export default function ListingApprovalsPage() {
     () => productsData?.data ?? [],
     [productsData?.data],
   );
-  const auctionsList: UnverifiedAuction[] = useMemo(
+
+  const pendingAuctionsList: UnverifiedAuction[] = useMemo(
     () => auctionsData?.results ?? [],
     [auctionsData?.results],
   );
+
+  const allAuctionsList: UnverifiedAuction[] = useMemo(
+    () => allAuctionsData?.results ?? [],
+    [allAuctionsData?.results],
+  );
+
+  const displayedAuctionsList: UnverifiedAuction[] = useMemo(
+    () =>
+      auctionViewFilter === "all" ? allAuctionsList : pendingAuctionsList,
+    [auctionViewFilter, allAuctionsList, pendingAuctionsList],
+  );
+
+  const isCurrentAuctionsLoading =
+    auctionViewFilter === "all" ? isAllAuctionsLoading : isAuctionsLoading;
+  const isCurrentAuctionsFetching =
+    auctionViewFilter === "all" ? isAllAuctionsFetching : isAuctionsFetching;
+  const isCurrentAuctionsError =
+    auctionViewFilter === "all" ? isAllAuctionsError : isAuctionsError;
+
+  const refetchCurrentAuctions = () => {
+    if (auctionViewFilter === "all") {
+      refetchAllAuctions();
+    } else {
+      refetchAuctions();
+    }
+  };
 
   // Filter products by search query
   const filteredProducts = useMemo(() => {
@@ -121,16 +161,16 @@ export default function ListingApprovalsPage() {
 
   // Filter auctions by search query
   const filteredAuctions = useMemo(() => {
-    if (!search.trim()) return auctionsList;
+    if (!search.trim()) return displayedAuctionsList;
     const query = search.toLowerCase();
-    return auctionsList.filter(
+    return displayedAuctionsList.filter(
       (a) =>
         a.name?.toLowerCase().includes(query) ||
         a.starting_bid?.toLowerCase().includes(query) ||
         a.id.toString().includes(query) ||
         a.user?.toString().includes(query),
     );
-  }, [auctionsList, search]);
+  }, [displayedAuctionsList, search]);
 
   // Product Actions
   const handleApproveProduct = async (product: ApprovalProduct) => {
@@ -184,6 +224,7 @@ export default function ListingApprovalsPage() {
         setSelectedAuction(null);
       }
       refetchAuctions();
+      refetchAllAuctions();
     } catch (err: unknown) {
       const msg =
         (err as { data?: { message?: string } })?.data?.message ||
@@ -208,6 +249,7 @@ export default function ListingApprovalsPage() {
         setSelectedAuction(null);
       }
       refetchAuctions();
+      refetchAllAuctions();
     } catch (err: unknown) {
       const msg =
         (err as { data?: { message?: string } })?.data?.message ||
@@ -263,10 +305,10 @@ export default function ListingApprovalsPage() {
                 Pending Auctions
               </span>
               <span className='text-3xl font-bold text-gray-900'>
-                {isAuctionsLoading ? "..." : auctionsList.length}
+                {isAuctionsLoading ? "..." : pendingAuctionsList.length}
               </span>
               <span className='text-xs text-purple-600 mt-1 flex items-center gap-1 font-medium'>
-                <Clock className='w-3.5 h-3.5' /> Auction Listings
+                <Clock className='w-3.5 h-3.5' /> {allAuctionsList.length} Total Registered
               </span>
             </div>
             <div className='w-12 h-12 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center shrink-0'>
@@ -283,7 +325,7 @@ export default function ListingApprovalsPage() {
               <span className='text-3xl font-bold text-brand'>
                 {isProductsLoading || isAuctionsLoading
                   ? "..."
-                  : productsList.length + auctionsList.length}
+                  : productsList.length + pendingAuctionsList.length}
               </span>
               <span className='text-xs text-gray-400 mt-1'>
                 Products & Auctions combined
@@ -346,7 +388,7 @@ export default function ListingApprovalsPage() {
                       : "bg-gray-200 text-gray-600"
                   }`}
                 >
-                  {auctionsList.length}
+                  {pendingAuctionsList.length}
                 </span>
               </button>
             </div>
@@ -365,14 +407,18 @@ export default function ListingApprovalsPage() {
               <button
                 type='button'
                 onClick={() =>
-                  activeTab === "products" ? refetchProducts() : refetchAuctions()
+                  activeTab === "products"
+                    ? refetchProducts()
+                    : refetchCurrentAuctions()
                 }
                 className='p-2 rounded-lg border border-gray-200 text-gray-500 hover:text-brand hover:border-brand/40 transition-colors'
                 title='Refresh list'
               >
                 <RefreshCw
                   className={`w-4 h-4 ${
-                    isProductsFetching || isAuctionsFetching ? "animate-spin" : ""
+                    isProductsFetching || isCurrentAuctionsFetching
+                      ? "animate-spin"
+                      : ""
                   }`}
                 />
               </button>
@@ -545,19 +591,66 @@ export default function ListingApprovalsPage() {
           {/* TAB 2: AUCTIONS LIST */}
           {activeTab === "auctions" && (
             <div>
-              {isAuctionsLoading ? (
+              {/* Auction Sub-Filter Pills */}
+              <div className='flex items-center gap-2 mb-4'>
+                <button
+                  type='button'
+                  onClick={() => setAuctionViewFilter("pending")}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all ${
+                    auctionViewFilter === "pending"
+                      ? "bg-purple-600 text-white shadow-sm"
+                      : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                  }`}
+                >
+                  <Clock className='w-3.5 h-3.5' />
+                  Pending Approvals
+                  <span
+                    className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold ${
+                      auctionViewFilter === "pending"
+                        ? "bg-purple-800 text-white"
+                        : "bg-gray-200 text-gray-700"
+                    }`}
+                  >
+                    {pendingAuctionsList.length}
+                  </span>
+                </button>
+
+                <button
+                  type='button'
+                  onClick={() => setAuctionViewFilter("all")}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all ${
+                    auctionViewFilter === "all"
+                      ? "bg-purple-600 text-white shadow-sm"
+                      : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                  }`}
+                >
+                  <ListFilter className='w-3.5 h-3.5' />
+                  All Auctions (Live & Pending)
+                  <span
+                    className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold ${
+                      auctionViewFilter === "all"
+                        ? "bg-purple-800 text-white"
+                        : "bg-gray-200 text-gray-700"
+                    }`}
+                  >
+                    {allAuctionsList.length}
+                  </span>
+                </button>
+              </div>
+
+              {isCurrentAuctionsLoading ? (
                 <div className='py-20 flex flex-col items-center justify-center gap-3 text-gray-400'>
                   <div className='w-8 h-8 border-3 border-purple-600 border-t-transparent rounded-full animate-spin' />
-                  <p className='text-sm'>Loading pending auctions...</p>
+                  <p className='text-sm'>Loading auctions...</p>
                 </div>
-              ) : isAuctionsError ? (
+              ) : isCurrentAuctionsError ? (
                 <div className='py-16 text-center text-red-500 bg-red-50/50 rounded-xl border border-red-100 flex flex-col items-center gap-2'>
                   <AlertCircle className='w-8 h-8 text-red-500' />
                   <p className='font-semibold text-sm'>
-                    Failed to fetch auction approval requests.
+                    Failed to fetch auction requests.
                   </p>
                   <button
-                    onClick={() => refetchAuctions()}
+                    onClick={() => refetchCurrentAuctions()}
                     className='text-xs text-red-700 underline font-medium hover:text-red-900 mt-1'
                   >
                     Click here to retry
@@ -569,12 +662,18 @@ export default function ListingApprovalsPage() {
                     <CheckCircle2 className='w-6 h-6' />
                   </div>
                   <p className='text-base font-semibold text-gray-700'>
-                    {search ? "No auctions match your search query." : "No Pending Auctions"}
+                    {search
+                      ? "No auctions match your search query."
+                      : auctionViewFilter === "pending"
+                        ? "No Pending Auctions"
+                        : "No Auctions Found"}
                   </p>
                   <p className='text-xs text-gray-400 max-w-sm'>
                     {search
                       ? "Try searching with a different auction title or owner ID."
-                      : "All submitted auctions have been reviewed and approved."}
+                      : auctionViewFilter === "pending"
+                        ? "All submitted auctions have been reviewed and approved."
+                        : "No auctions currently exist in the database."}
                   </p>
                 </div>
               ) : (
@@ -624,12 +723,17 @@ export default function ListingApprovalsPage() {
                       header: "Status",
                       accessor: (row) => (
                         <div className='flex items-center gap-1.5'>
-                          <span className='inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200'>
-                            <Clock className='w-3 h-3' /> Pending Verification
-                          </span>
-                          {row.is_rejected && (
-                            <span className='inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-red-50 text-red-600 border border-red-200'>
-                              Rejected
+                          {row.is_verified ? (
+                            <span className='inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200'>
+                              <CheckCircle2 className='w-3 h-3' /> Verified & Live
+                            </span>
+                          ) : row.is_rejected ? (
+                            <span className='inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-red-50 text-red-600 border border-red-200'>
+                              <XCircle className='w-3 h-3' /> Rejected
+                            </span>
+                          ) : (
+                            <span className='inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200'>
+                              <Clock className='w-3 h-3' /> Pending Verification
                             </span>
                           )}
                         </div>
@@ -652,32 +756,36 @@ export default function ListingApprovalsPage() {
                             <Eye className='w-4 h-4' />
                           </button>
 
-                          <Button
-                            type='button'
-                            variant='danger'
-                            size='sm'
-                            onClick={() => {
-                              setAuctionToReject(row);
-                              setIsAuctionRejectOpen(true);
-                            }}
-                            disabled={isAcceptingAuction || isRejectingAuction}
-                            className='px-3 py-1 text-xs gap-1 h-8'
-                          >
-                            <XCircle className='w-3.5 h-3.5' />
-                            Reject
-                          </Button>
+                          {!row.is_rejected && (
+                            <Button
+                              type='button'
+                              variant='danger'
+                              size='sm'
+                              onClick={() => {
+                                setAuctionToReject(row);
+                                setIsAuctionRejectOpen(true);
+                              }}
+                              disabled={isAcceptingAuction || isRejectingAuction}
+                              className='px-3 py-1 text-xs gap-1 h-8'
+                            >
+                              <XCircle className='w-3.5 h-3.5' />
+                              Reject
+                            </Button>
+                          )}
 
-                          <Button
-                            type='button'
-                            variant='primary'
-                            size='sm'
-                            onClick={() => handleApproveAuction(row)}
-                            disabled={isAcceptingAuction || isRejectingAuction}
-                            className='px-3 py-1 text-xs gap-1 h-8 bg-[#00b341] hover:bg-[#009b35]'
-                          >
-                            <CheckCircle2 className='w-3.5 h-3.5' />
-                            Approve
-                          </Button>
+                          {!row.is_verified && (
+                            <Button
+                              type='button'
+                              variant='primary'
+                              size='sm'
+                              onClick={() => handleApproveAuction(row)}
+                              disabled={isAcceptingAuction || isRejectingAuction}
+                              className='px-3 py-1 text-xs gap-1 h-8 bg-[#00b341] hover:bg-[#009b35]'
+                            >
+                              <CheckCircle2 className='w-3.5 h-3.5' />
+                              Approve
+                            </Button>
+                          )}
                         </div>
                       ),
                     },

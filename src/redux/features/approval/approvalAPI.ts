@@ -85,13 +85,25 @@ export const approvalAPI = baseAPI.injectEndpoints({
       invalidatesTags: ["ProductApproval", "Product"],
     }),
 
-    // 3. Auction Approvals
+    // 3. Auction Approvals (Pending & All)
     getUnverifiedAuctions: builder.query<
       UnverifiedAuctionsResponse,
       { page?: number; search?: string } | void
     >({
       query: (params) => ({
         url: "/aucitons/unverified/",
+        method: "GET",
+        params: params || {},
+      }),
+      providesTags: ["AuctionApproval"],
+    }),
+
+    getAllAuctions: builder.query<
+      UnverifiedAuctionsResponse,
+      { page?: number; search?: string } | void
+    >({
+      query: (params) => ({
+        url: "/aucitons/verify/",
         method: "GET",
         params: params || {},
       }),
@@ -128,6 +140,7 @@ export const {
   useAcceptProductMutation,
   useRejectProductMutation,
   useGetUnverifiedAuctionsQuery,
+  useGetAllAuctionsQuery,
   useAcceptAuctionMutation,
   useRejectAuctionMutation,
 } = approvalAPI;
