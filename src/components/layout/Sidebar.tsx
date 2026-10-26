@@ -14,6 +14,8 @@ import {
   Settings,
   LogOut,
   PersonStanding,
+  UserCheck,
+  PackageCheck,
 } from "lucide-react";
 import clsx from "clsx";
 import { useAppDispatch } from "@/redux/hooks";
@@ -27,6 +29,8 @@ const navItems = [
   { name: "Manage Drivers", href: "/manage-drivers", icon: Truck },
   { name: "Manage Veterinary", href: "/manage-veterinary", icon: Stethoscope },
   { name: "Manage Seller", href: "/seller", icon: PersonStanding },
+  { name: "Seller Approvals", href: "/seller-approvals", icon: UserCheck },
+  { name: "Listing Approvals", href: "/listing-approvals", icon: PackageCheck },
   { name: "Create Notification", href: "/create-notification", icon: BellRing },
   { name: "Support/Report", href: "/support-report", icon: HelpCircle },
   { name: "Settings", href: "/settings/profile-info", icon: Settings },
@@ -89,7 +93,20 @@ export function Sidebar() {
           const isActive =
             item.href === "/"
               ? pathname === "/"
-              : pathname.startsWith(item.href);
+              : item.href === "/settings/profile-info"
+                ? pathname.startsWith("/settings")
+                : item.href === "/seller-approvals"
+                  ? pathname === "/seller-approvals" ||
+                    pathname.startsWith("/seller-approvals/") ||
+                    pathname === "/seller-approval" ||
+                    pathname.startsWith("/seller-approval/")
+                  : item.href === "/listing-approvals"
+                    ? pathname === "/listing-approvals" ||
+                      pathname.startsWith("/listing-approvals/") ||
+                      pathname === "/listing-approval" ||
+                      pathname.startsWith("/listing-approval/")
+                    : pathname === item.href ||
+                      pathname.startsWith(`${item.href}/`);
 
           return (
             <Link

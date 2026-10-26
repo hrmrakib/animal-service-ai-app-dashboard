@@ -118,6 +118,9 @@ export const baseAPI = createApi({
     "Profile",
     "TermsAndConditions",
     "AboutUs",
+    "SellerApproval",
+    "ProductApproval",
+    "AuctionApproval",
   ],
   endpoints: () => ({}),
 });
