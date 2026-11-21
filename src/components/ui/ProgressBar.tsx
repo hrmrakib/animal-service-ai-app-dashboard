@@ -13,6 +13,8 @@ export function ProgressBar({
   percentage,
   subtext,
 }: ProgressBarProps) {
+  const clampedPercentage = Math.min(100, Math.max(0, percentage));
+
   return (
     <div className='flex flex-col gap-2 w-full'>
       <div className='flex justify-between items-end'>
@@ -22,10 +24,10 @@ export function ProgressBar({
       <div className='h-2 w-full bg-gray-100 rounded-full overflow-hidden'>
         <div
           className='h-full bg-brand rounded-full transition-all duration-500 ease-in-out'
-          style={{ width: `${percentage}%` }}
+          style={{ width: `${clampedPercentage}%` }}
         />
       </div>
-      <span className='text-xs text-gray-400'>{subtext}</span>
+      {subtext && <span className='text-xs text-gray-400'>{subtext}</span>}
     </div>
   );
 }

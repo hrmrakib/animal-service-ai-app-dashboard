@@ -3,13 +3,17 @@ type PercentageData = {
   veterinary_percentage: number;
   transports_percentage: number;
   auctions_percentage: number;
-  total_usage_count: number;
+  total_usage_count: number | string;
 };
 
 export function DonutChartPlaceholder({
   percentageData,
+  title = "Role Distribution",
+  totalLabel = "Total",
 }: {
   percentageData?: PercentageData;
+  title?: string;
+  totalLabel?: string;
 }) {
   const {
     product_orders_percentage = 0,
@@ -40,10 +44,15 @@ export function DonutChartPlaceholder({
     })
     .join(", ");
 
+  const backgroundStyle =
+    cumulative > 0
+      ? `conic-gradient(${gradientStops})`
+      : "#e5e7eb";
+
   return (
     <div className='flex flex-col h-full bg-white rounded-xl shadow-sm p-6'>
       <h3 className='text-lg font-semibold text-gray-900 mb-6'>
-        Role Distribution
+        {title}
       </h3>
 
       <div className='flex-1 flex flex-col items-center justify-center'>
@@ -51,14 +60,16 @@ export function DonutChartPlaceholder({
         <div
           className='relative w-48 h-48 rounded-full flex items-center justify-center'
           style={{
-            background: `conic-gradient(${gradientStops})`,
+            background: backgroundStyle,
           }}
         >
           {/* Inner white circle for donut hole */}
           <div className='w-36 h-36 bg-white rounded-full flex flex-col items-center justify-center shadow-inner'>
-            <span className='text-gray-500 text-sm font-medium'>Total</span>
-            <span className='text-2xl font-bold text-gray-900'>
-              {total_usage_count}
+            <span className='text-gray-500 text-sm font-medium'>{totalLabel}</span>
+            <span className='text-xl font-bold text-gray-900 text-center px-2'>
+              {typeof total_usage_count === "number"
+                ? total_usage_count.toLocaleString()
+                : total_usage_count}
             </span>
           </div>
         </div>
@@ -73,7 +84,7 @@ export function DonutChartPlaceholder({
               ></span>
               <span className='text-gray-500'>{seg.label}</span>
               <span className='font-semibold' style={{ color: seg.color }}>
-                {seg.value.toFixed(2)}%
+                {seg.value.toFixed(1)}%
               </span>
             </div>
           ))}

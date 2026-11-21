@@ -9,7 +9,7 @@ interface TableColumn<T> {
 interface TableProps<T> {
   columns: TableColumn<T>[];
   data: T[];
-  keyExtractor: (row: T) => string | number;
+  keyExtractor: (row: T, index: number) => string | number;
 }
 
 export function Table<T>({ columns, data, keyExtractor }: TableProps<T>) {
@@ -29,9 +29,9 @@ export function Table<T>({ columns, data, keyExtractor }: TableProps<T>) {
           </tr>
         </thead>
         <tbody className='divide-y divide-border-subtle'>
-          {data.map((row) => (
+          {data.map((row, i) => (
             <tr
-              key={keyExtractor(row)}
+              key={keyExtractor(row, i)}
               className='hover:bg-gray-50 transition-colors'
             >
               {columns.map((col, i) => (
