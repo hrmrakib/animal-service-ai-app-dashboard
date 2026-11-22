@@ -29,6 +29,14 @@ export interface UserDetail {
 }
 
 interface UserProfileApiData {
+  buyer_details?: {
+    id?: number | string;
+    name?: string;
+    email?: string;
+    phone?: string;
+    role?: string;
+    is_verified?: boolean;
+  };
   rider_details?: {
     id?: number | string;
     name?: string;
@@ -37,9 +45,12 @@ interface UserProfileApiData {
     role?: string;
     is_verified?: boolean;
   };
+  total_spending?: number;
   total_earnings_amount?: number;
   completed_rides_count?: number;
   pending_rides_count?: number;
+  completed_orders_count?: number;
+  pending_orders_count?: number;
   total_orders?: number;
 }
 
@@ -98,7 +109,10 @@ export function UserProfileModal({
   if (!user) return null;
 
   const apiData = ((detailsData as unknown as { data?: UserProfileApiData })?.data) || {};
-  const userDetails = apiData.rider_details || {};
+  const userDetails =
+    apiData.buyer_details ||
+    apiData.rider_details ||
+    {};
   const effectiveName = userDetails.name || user.name || "Unnamed User";
   const effectiveEmail = userDetails.email || user.email || "—";
   const effectivePhone = userDetails.phone || user.phone || "—";
@@ -241,19 +255,45 @@ export function UserProfileModal({
           </section>
 
           {/* Activity summary if available */}
-          {(apiData.total_earnings_amount !== undefined ||
+          {(apiData.total_spending !== undefined ||
+            apiData.total_earnings_amount !== undefined ||
             apiData.completed_rides_count !== undefined ||
+            apiData.completed_orders_count !== undefined ||
             apiData.total_orders !== undefined) && (
             <section className='bg-white rounded-xl border border-gray-100 p-5 shadow-sm'>
               <h3 className='font-bold text-gray-900 mb-4 text-base'>
                 Activity Summary
               </h3>
               <div className='grid grid-cols-2 sm:grid-cols-3 gap-4'>
+                {apiData.total_spending !== undefined && (
+                  <div className='p-3 bg-brand/10 rounded-lg'>
+                    <p className='text-xs text-gray-500'>Total Spending</p>
+                    <p className='text-lg font-bold text-brand mt-1'>
+                      SAR {Number(apiData.total_spending).toFixed(2)}
+                    </p>
+                  </div>
+                )}
+                {apiData.completed_orders_count !== undefined && (
+                  <div className='p-3 bg-green-50 rounded-lg'>
+                    <p className='text-xs text-gray-500'>Completed Orders</p>
+                    <p className='text-lg font-bold text-green-600 mt-1'>
+                      {apiData.completed_orders_count}
+                    </p>
+                  </div>
+                )}
+                {apiData.pending_orders_count !== undefined && (
+                  <div className='p-3 bg-amber-50 rounded-lg'>
+                    <p className='text-xs text-gray-500'>Pending Orders</p>
+                    <p className='text-lg font-bold text-amber-600 mt-1'>
+                      {apiData.pending_orders_count}
+                    </p>
+                  </div>
+                )}
                 {apiData.total_earnings_amount !== undefined && (
                   <div className='p-3 bg-orange-50 rounded-lg'>
                     <p className='text-xs text-gray-500'>Total Earnings</p>
                     <p className='text-lg font-bold text-brand mt-1'>
-                      ${Number(apiData.total_earnings_amount).toFixed(2)}
+                      SAR {Number(apiData.total_earnings_amount).toFixed(2)}
                     </p>
                   </div>
                 )}
