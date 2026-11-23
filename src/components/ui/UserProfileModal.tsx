@@ -28,29 +28,31 @@ export interface UserDetail {
   created_at: string;
 }
 
+interface ModalUserDetails {
+  id?: number | string;
+  name?: string;
+  email?: string;
+  phone?: string;
+  role?: string;
+  is_verified?: boolean;
+  clinic_name?: string;
+}
+
 interface UserProfileApiData {
-  buyer_details?: {
-    id?: number | string;
-    name?: string;
-    email?: string;
-    phone?: string;
-    role?: string;
-    is_verified?: boolean;
-  };
-  rider_details?: {
-    id?: number | string;
-    name?: string;
-    email?: string;
-    phone?: string;
-    role?: string;
-    is_verified?: boolean;
-  };
+  doctor_details?: ModalUserDetails;
+  veterinarian_details?: ModalUserDetails;
+  buyer_details?: ModalUserDetails;
+  rider_details?: ModalUserDetails;
   total_spending?: number;
   total_earnings_amount?: number;
+  platform_commission?: number;
   completed_rides_count?: number;
   pending_rides_count?: number;
   completed_orders_count?: number;
   pending_orders_count?: number;
+  completed_appointments_count?: number;
+  pending_appointments_count?: number;
+  cancelled_appointments_count?: number;
   total_orders?: number;
 }
 
@@ -110,6 +112,8 @@ export function UserProfileModal({
 
   const apiData = ((detailsData as unknown as { data?: UserProfileApiData })?.data) || {};
   const userDetails =
+    apiData.doctor_details ||
+    apiData.veterinarian_details ||
     apiData.buyer_details ||
     apiData.rider_details ||
     {};
@@ -239,6 +243,17 @@ export function UserProfileModal({
                 </p>
               </div>
 
+              {userDetails.clinic_name && (
+                <div>
+                  <p className='text-xs text-gray-400 mb-1 flex items-center gap-1'>
+                    Clinic Name
+                  </p>
+                  <p className='font-medium text-sm text-gray-900'>
+                    {userDetails.clinic_name}
+                  </p>
+                </div>
+              )}
+
               <div>
                 <p className='text-xs text-gray-400 mb-1'>Account Status</p>
                 <span
@@ -259,6 +274,7 @@ export function UserProfileModal({
             apiData.total_earnings_amount !== undefined ||
             apiData.completed_rides_count !== undefined ||
             apiData.completed_orders_count !== undefined ||
+            apiData.completed_appointments_count !== undefined ||
             apiData.total_orders !== undefined) && (
             <section className='bg-white rounded-xl border border-gray-100 p-5 shadow-sm'>
               <h3 className='font-bold text-gray-900 mb-4 text-base'>
@@ -270,6 +286,26 @@ export function UserProfileModal({
                     <p className='text-xs text-gray-500'>Total Spending</p>
                     <p className='text-lg font-bold text-brand mt-1'>
                       SAR {Number(apiData.total_spending).toFixed(2)}
+                    </p>
+                  </div>
+                )}
+                {apiData.completed_appointments_count !== undefined && (
+                  <div className='p-3 bg-blue-50 rounded-lg'>
+                    <p className='text-xs text-gray-500'>
+                      Completed Appointments
+                    </p>
+                    <p className='text-lg font-bold text-blue-600 mt-1'>
+                      {apiData.completed_appointments_count}
+                    </p>
+                  </div>
+                )}
+                {apiData.pending_appointments_count !== undefined && (
+                  <div className='p-3 bg-amber-50 rounded-lg'>
+                    <p className='text-xs text-gray-500'>
+                      Pending Appointments
+                    </p>
+                    <p className='text-lg font-bold text-amber-600 mt-1'>
+                      {apiData.pending_appointments_count}
                     </p>
                   </div>
                 )}

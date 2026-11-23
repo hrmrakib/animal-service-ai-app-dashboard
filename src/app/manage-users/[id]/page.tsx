@@ -40,9 +40,15 @@ interface ActivityRecord {
   drop_location?: string;
   date?: string;
   created_at?: string;
+  appointment_date?: string;
   amount?: number | string;
   total_amount?: number | string;
+  fee?: number | string;
   status?: string;
+  user_name?: string;
+  client_name?: string;
+  patient_name?: string;
+  pet_name?: string;
 }
 
 interface CommonUserDetails {
@@ -52,14 +58,18 @@ interface CommonUserDetails {
   phone?: string | null;
   role?: string;
   is_verified?: boolean;
+  clinic_name?: string;
+  store_name?: string;
 }
 
 interface UserApiData {
+  doctor_details?: CommonUserDetails;
+  veterinarian_details?: CommonUserDetails;
   buyer_details?: CommonUserDetails;
   rider_details?: CommonUserDetails;
   seller_details?: CommonUserDetails;
-  veterinarian_details?: CommonUserDetails;
   driver_details?: CommonUserDetails;
+  user_details?: CommonUserDetails;
   recent_list?: {
     count?: number;
     results?: ActivityRecord[];
@@ -72,11 +82,14 @@ interface UserApiData {
   completed_orders_count?: number;
   pending_orders_count?: number;
   cancelled_orders_count?: number;
+  // Appointments (Doctor / Vet / Buyer)
   completed_appointments_count?: number;
   pending_appointments_count?: number;
+  cancelled_appointments_count?: number;
+  // Transports (Rider / Buyer)
   completed_transports_count?: number;
   pending_transports_count?: number;
-  // Rider/Driver fields
+  // Earnings & Commissions
   total_earnings_amount?: number;
   platform_commission?: number;
   completed_rides_count?: number;
@@ -141,35 +154,99 @@ export default function UserDetailPage({
   const apiData =
     ((data as unknown as { data?: UserApiData })?.data) || {};
 
-  const userDetails =
+  const userDetails: CommonUserDetails =
+    apiData.doctor_details ||
+    apiData.veterinarian_details ||
     apiData.buyer_details ||
     apiData.rider_details ||
     apiData.seller_details ||
-    apiData.veterinarian_details ||
     apiData.driver_details ||
-    (apiData as { user_details?: CommonUserDetails }).user_details ||
+    apiData.user_details ||
+    (Object.values(apiData).find(
+      (v) =>
+        v &&
+        typeof v === "object" &&
+        !Array.isArray(v) &&
+        ("role" in v || "email" in v || "name" in v)
+    ) as CommonUserDetails | undefined) ||
     {};
 
   const recentList: ActivityRecord[] = apiData.recent_list?.results || [];
   const totalPages = apiData.recent_list?.total_pages || 1;
-  const currentRole = (
+
+  const detectedRole = (
     userDetails.role ||
     roleParam ||
-    "buyer"
+    ""
   ).toLowerCase();
 
+  const isVet =
+    detectedRole.includes("vet") ||
+    detectedRole.includes("doctor") ||
+    Boolean(apiData.doctor_details || apiData.veterinarian_details) ||
+    (apiData.completed_appointments_count !== undefined &&
+      apiData.total_spending === undefined &&
+      apiData.completed_rides_count === undefined);
+
   const isBuyer =
-    currentRole.includes("buyer") ||
-    apiData.total_spending !== undefined ||
-    apiData.completed_orders_count !== undefined;
+    !isVet &&
+    (detectedRole.includes("buyer") ||
+      Boolean(apiData.buyer_details) ||
+      apiData.total_spending !== undefined ||
+      apiData.completed_orders_count !== undefined);
 
   const isRider =
-    currentRole.includes("rider") ||
-    currentRole.includes("driver") ||
-    currentRole.includes("transport") ||
-    apiData.total_earnings_amount !== undefined;
+    !isVet &&
+    !isBuyer &&
+    (detectedRole.includes("rider") ||
+      detectedRole.includes("driver") ||
+      detectedRole.includes("transport") ||
+      Boolean(apiData.rider_details || apiData.driver_details) ||
+      apiData.completed_rides_count !== undefined); 
 
   const renderStatCards = () => {
+    if (isVet) {
+      return (
+        <div className='grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4'>
+          <StatCard
+            title='Total Earnings'
+            value={formatCurrency(apiData.total_earnings_amount)}
+            icon={<Banknote className='w-5 h-5 text-brand' />}
+            iconBgColor='bg-brand/10'
+            withBorder
+          />
+          <StatCard
+            title='Platform Fee'
+            value={formatCurrency(apiData.platform_commission)}
+            icon={<Users className='w-5 h-5 text-blue-500' />}
+            iconBgColor='bg-blue-50'
+            withBorder
+          />
+          <StatCard
+            title='Completed Appointments'
+            value={apiData.completed_appointments_count ?? 0}
+            icon={<CheckCircle2 className='w-5 h-5 text-green-500' />}
+            iconBgColor='bg-green-50'
+            withBorder
+          />
+          <StatCard
+            title='Pending Appointments'
+            value={apiData.pending_appointments_count ?? 0}
+            icon={<Clock className='w-5 h-5 text-amber-500' />}
+            iconBgColor='bg-amber-50'
+            withBorder
+          />
+          <StatCard
+            title='Cancelled Appointments'
+            value={apiData.cancelled_appointments_count ?? 0}
+            icon={<XCircle className='w-5 h-5 text-red-500' />}
+            iconBgColor='bg-red-50'
+            withBorder
+          />
+        </div>
+      );
+    }
+
     if (isBuyer) {
       return (
         <div className='grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4'>
@@ -185,7 +262,7 @@ export default function UserDetailPage({
             value={apiData.completed_orders_count ?? 0}
             icon={<CheckCircle2 className='w-5 h-5 text-green-500' />}
             iconBgColor='bg-green-50'
-            withBorder 
+            withBorder
           />
           <StatCard
             title='Pending Orders'
@@ -319,6 +396,78 @@ export default function UserDetailPage({
   };
 
   const renderTable = () => {
+    if (isVet) {
+      return (
+        <Table
+          data={recentList}
+          keyExtractor={(row: ActivityRecord, index: number) =>
+            String(
+              row.appointment_id ||
+                row.id ||
+                row.order_id ||
+                index
+            )
+          }
+          columns={[
+            {
+              header: "Appointment ID",
+              accessor: (row: ActivityRecord) =>
+                `#${row.appointment_id ?? row.id ?? "—"}`,
+              className: "font-medium text-gray-900",
+            },
+            {
+              header: "Client / Patient",
+              accessor: (row: ActivityRecord) =>
+                row.client_name ||
+                row.user_name ||
+                row.pet_name ||
+                "—",
+              className: "text-gray-700",
+            },
+            {
+              header: "Service",
+              accessor: (row: ActivityRecord) => (
+                <span className='capitalize font-medium text-gray-800'>
+                  {row.service || row.type || "Consultation"}
+                </span>
+              ),
+              className: "text-gray-700",
+            },
+            {
+              header: "Date & Time",
+              accessor: (row: ActivityRecord) =>
+                formatDate(
+                  row.date ||
+                    row.appointment_date ||
+                    row.created_at
+                ),
+              className: "text-gray-500",
+            },
+            {
+              header: "Amount",
+              accessor: (row: ActivityRecord) =>
+                formatCurrency(
+                  row.amount ?? row.fee ?? row.total_amount
+                ),
+              className: "text-gray-900 font-medium",
+            },
+            {
+              header: "Status",
+              accessor: (row: ActivityRecord) => (
+                <span
+                  className={`text-xs capitalize ${getStatusColor(
+                    row.status
+                  )}`}
+                >
+                  {row.status || "—"}
+                </span>
+              ),
+            },
+          ]}
+        />
+      );
+    }
+
     if (isBuyer) {
       return (
         <Table
@@ -447,6 +596,7 @@ export default function UserDetailPage({
   };
 
   const getTableTitle = () => {
+    if (isVet) return "Recent Appointments";
     if (isRider) return "Recent Trips";
     if (isBuyer) return "Recent Orders & Activities";
     return "Recent Activity";
@@ -463,13 +613,18 @@ export default function UserDetailPage({
           >
             <ArrowLeft className='w-5 h-5 text-gray-700' />
           </Link>
-          <div className='flex items-center gap-3'>
+          <div className='flex items-center gap-3 flex-wrap'>
             <span className='text-xl font-semibold text-gray-900'>
               {userDetails.name || userDetails.email || "User Details"}
             </span>
             {userDetails.role && (
               <span className='capitalize px-2.5 py-0.5 rounded-full text-xs font-semibold bg-brand/10 text-brand'>
                 {userDetails.role}
+              </span>
+            )}
+            {userDetails.clinic_name && (
+              <span className='px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200'>
+                Clinic: {userDetails.clinic_name}
               </span>
             )}
           </div>
@@ -486,6 +641,11 @@ export default function UserDetailPage({
             email={userDetails.email || "N/A"}
             phone={userDetails.phone || "N/A"}
             rating={userDetails.is_verified ? 5 : 0}
+            extraInfo={
+              userDetails.clinic_name
+                ? `Clinic: ${userDetails.clinic_name}`
+                : undefined
+            }
           />
 
           {/* Dynamic Stat Cards */}

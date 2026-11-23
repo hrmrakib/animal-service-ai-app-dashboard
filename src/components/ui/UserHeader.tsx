@@ -6,9 +6,10 @@ interface UserHeaderProps {
   email: string;
   phone: string;
   rating: number;
+  extraInfo?: string;
 }
 
-export function UserHeader({ name, roleId, email, phone, rating }: UserHeaderProps) {
+export function UserHeader({ name, roleId, email, phone, rating, extraInfo }: UserHeaderProps) {
   return (
     <div className="flex flex-col md:flex-row md:items-center gap-6 mb-8 mt-2">
       <div className="flex items-center gap-4">
@@ -27,7 +28,14 @@ export function UserHeader({ name, roleId, email, phone, rating }: UserHeaderPro
               {rating}
             </div>
           </div>
-          <p className="text-sm font-medium text-brand/70 uppercase mt-0.5">ID: {roleId}</p>
+          <div className="flex items-center gap-2 mt-0.5 flex-wrap">
+            <p className="text-sm font-medium text-brand/70 uppercase">ID: {roleId}</p>
+            {extraInfo && (
+              <span className="text-xs text-blue-700 bg-blue-50 border border-blue-200 font-medium px-2 py-0.5 rounded-full">
+                {extraInfo}
+              </span>
+            )}
+          </div>
         </div>
       </div>
 
